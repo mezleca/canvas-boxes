@@ -14,6 +14,7 @@ export class Node extends StyleData {
         this.children = [];
         this.parent = null;
         this.visible = true;
+        this.resizable = true;
     }
 
     add(child) {
@@ -27,8 +28,9 @@ export class Node extends StyleData {
 
         this.draw(ctx);
 
+        // always render children (this fixes nested layouts)
         for (const child of this.children) {
-            child.render(ctx);
+            child.render(ctx, dt);
         }
     }
 
@@ -79,12 +81,13 @@ export class Node extends StyleData {
     set_visible(value) {
         this.visible = value;
     }
-};
+}
 
 export class Layout extends Node {
     constructor(w, h) {
         super();
         this.type = "default";
+        this.visible = true;
         this.w = w;
         this.h = h;
     }
@@ -98,36 +101,36 @@ export class Layout extends Node {
     }
 
     draw(ctx) {
+        // render background/border first
+        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, null, this.border_size);
+
         switch (this.type) {
             case "free":
-                this.draw_free(ctx);
+                this.layout_free();
                 break;
             case "default":
-                this.draw_default(ctx);
+                this.layout_default();
                 break;
             case "flex":
-                this.draw_flex(ctx);
+                this.layout_flex();
                 break;
         }
     }
 
-    draw_free(ctx) {
+    layout_free() {
         for (const child of this.children) {
             // check events
             if (child.visible) {
                 child.update();
             }
         }
-
-        // render border if needed
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size);
     }
 
-    draw_flex(ctx) {
+    layout_flex() {
         throw new Error("not implemented yet");
     }
 
-    draw_default(ctx) {
+    layout_default() {
         // layout padding
         const l_pr = this.padding[PADDING_POSITIONS.RIGHT] || 0;
         const l_pl = this.padding[PADDING_POSITIONS.LEFT] || 0;
@@ -149,42 +152,59 @@ export class Layout extends Node {
             const i_pb = child.padding[PADDING_POSITIONS.BOTTOM] || 0;
 
             const item_total_width = i_pl + child.w + i_pr;
+            const full_x = acc + item_total_width;
+            const available_width = this.w - l_pr;
 
             // check if fits in current row
-            if (acc + item_total_width > this.w - l_pr) {
-                total_rows_height += current_row_height;
-                row++;
-                acc = l_pl;
-                current_row_height = 0;
+            if (full_x > available_width) {
+                // check if we can resize the window
+                const new_width = available_width + (full_x - available_width);
+                
+                // if we cant do shit just go to the next row
+                if (!this.resizable || !new_width || new_width > screen.width) {
+                    total_rows_height += current_row_height;
+                    row++;
+                    acc = l_pl;
+                    current_row_height = 0;
+                } else {
+                    this.w = new_width;
+                }
             }
 
             const target_x = this.x + acc + i_pl;
             const target_y = this.y + l_pt + total_rows_height + i_pt;
 
+            // current_y + child height + child bottom padding
+            const full_y = target_y + child.h + i_pb;
+            const available_height = this.y + this.h - l_pb;
+
             // check y overflow
-            if (target_y + child.h + i_pb > this.y + this.h - l_pb) {
-                child.set_visible(false);
-            } else {
-                child.set_visible(true);
-                
-                // update position
-                child.update_pos(target_x, target_y);
-                
-                // check for events
-                child.update();
-                
-                // track max height for current row
-                current_row_height = Math.max(current_row_height, child.h + i_pt + i_pb);
+            if (full_y > available_height) {
+                // check if we can resize the window
+                const new_height = available_height + (full_y - available_height);
+
+                if (!this.resizable || !new_height || new_height > screen.height) {
+                    child.set_visible(false);
+                    // update accumulator
+                    acc += item_total_width;
+                    continue;
+                }
+
+                this.h = new_height;
             }
+
+            // update position
+            child.set_visible(true);
+            child.update_pos(target_x, target_y);
+            
+            // track max height for current row
+            current_row_height = Math.max(current_row_height, child.h + i_pt + i_pb);
 
             // update accumulator
             acc += item_total_width;
         }
-
-        // render border
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size);
     }
-};
+}
 
 export class UI {
     /** @param {HTMLCanvasElement} canvas */
@@ -205,4 +225,4 @@ export class UI {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.root.render(this.ctx, dt);
     }
-};
+}

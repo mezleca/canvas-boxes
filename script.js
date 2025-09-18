@@ -7,7 +7,7 @@ const canvas = document.getElementById("canvas");
     - [x] layout/container
     - [x] node system
     - [x] render items on default layout mode
-    - [ ] render layout close to parent (rn is defaulting to 0,0)
+    - [ ] render next layout close to parent (rn is defaulting to 0,0)
     - [ ] layout scroll system
     - [ ] render items on free layout mode
     - [ ] render items on flex layout mode
@@ -25,18 +25,18 @@ let lastTime;
 
 const ui = new UI(canvas);
 const layout = new Layout(300, 300);
-const free_layout = new Layout(400, 400);
+const free_layout = new Layout(100, 200);
 
 ui.add(layout);
-ui.add(free_layout);
 
 const free_box = new Box(100, 100);
+free_layout.set_border(2, "rgb(120, 30, 250)");
 free_box.set_background_color("rgb(255, 255, 255)");
 
 free_layout.add(free_box);
+layout.add(free_layout);
 
-// test
-for (let i = 0; i < 150; i++) {
+for (let i = 0; i < 1; i++) {
     const size = Math.max(Math.floor(Math.random() * 50), 20);
     const box = new Box(size, size);
 
