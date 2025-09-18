@@ -2,14 +2,15 @@ import { Node } from "../canvas/canvas.js";
 import { render_box } from "../canvas/renderer.js";
 
 export class Box extends Node {
-    constructor(w, h, fill) {
+    constructor(w, h) {
         super();
+        this.visible = false;
         this.w = w || 20;
         this.h = h || 20;
-        this.fill = fill;
     }
 
     render(ctx) {
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.fill ? this.background_color : null, this.border_size);
+        if (!this.visible) return;
+        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size);
     }
 };

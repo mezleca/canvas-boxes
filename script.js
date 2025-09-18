@@ -7,6 +7,9 @@ const canvas = document.getElementById("canvas");
     - [x] layout/container
     - [x] node system
     - [x] render items on default layout mode
+    - [ ] render layout close to parent (rn is defaulting to 0,0)
+    - [ ] layout scroll system
+    - [ ] render items on free layout mode
     - [ ] render items on flex layout mode
     - [ ] mouseup / mousedown events
     - [x] mouseover / mouseleave events
@@ -21,21 +24,36 @@ const canvas = document.getElementById("canvas");
 let lastTime;
 
 const ui = new UI(canvas);
-const layout = new Layout(800, 600);
+const layout = new Layout(300, 300);
+const free_layout = new Layout(400, 400);
 
 ui.add(layout);
+ui.add(free_layout);
+
+const free_box = new Box(100, 100);
+free_box.set_background_color("rgb(255, 255, 255)");
+
+free_layout.add(free_box);
 
 // test
-for (let i = 0; i < 20; i++) {
-    const box = new Box(30, 30, Math.random() * 1 > 0.5);
+for (let i = 0; i < 150; i++) {
+    const size = Math.max(Math.floor(Math.random() * 50), 20);
+    const box = new Box(size, size);
 
-    // add random colors
+    const should_include_background = Math.random() * 1 > 0.5;
+
+    // add random colors to border / background
     const r = Math.floor(Math.random() * 255);
     const g = Math.floor(Math.random() * 255);
     const b = Math.floor(Math.random() * 255);
 
-    // other style shit
+    if (!should_include_background) {
+        box.set_background_color(`rgb(${r}, ${g}, ${b})`);
+    }
+    
     box.set_border(2, `rgb(${r}, ${g}, ${b})`);
+
+    // other styles
     box.set_padding_bottom(10);
     box.set_padding_right(10);
     box.set_id(i);
@@ -62,8 +80,10 @@ const update = (currentTime) => {
         lastTime = currentTime;
     }
 
+    const delta_time = currentTime - lastTime;
+
     // render node tree
-    ui.render(currentTime - lastTime);
+    ui.render(delta_time);
 
     // next frame :D
     requestAnimationFrame(update);

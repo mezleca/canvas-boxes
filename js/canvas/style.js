@@ -7,9 +7,9 @@ export const PADDING_POSITIONS = {
 
 export class StyleData {
     constructor() {
-        this.border_size = "1";
-        this.border_color = "rgb(120, 120, 120)";
-        this.background_color = "rgb(255, 255, 255)";
+        this.border_size = 1;
+        this.border_color = "";
+        this.background_color = "";
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
     }
 

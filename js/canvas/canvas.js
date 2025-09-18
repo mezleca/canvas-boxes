@@ -22,7 +22,7 @@ export class Node extends StyleData {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    render(ctx) {
+    render(ctx, dt) {
         if (!this.visible) return;
 
         this.draw(ctx);
@@ -75,6 +75,10 @@ export class Node extends StyleData {
     set_id(id) {
         this.id = id;
     }
+
+    set_visible(value) {
+        this.visible = value;
+    }
 };
 
 export class Layout extends Node {
@@ -95,12 +99,32 @@ export class Layout extends Node {
 
     draw(ctx) {
         switch (this.type) {
+            case "free":
+                this.draw_free(ctx);
+                break;
             case "default":
                 this.draw_default(ctx);
                 break;
             case "flex":
+                this.draw_flex(ctx);
                 break;
         }
+    }
+
+    draw_free(ctx) {
+        for (const child of this.children) {
+            // check events
+            if (child.visible) {
+                child.update();
+            }
+        }
+
+        // render border if needed
+        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size);
+    }
+
+    draw_flex(ctx) {
+        throw new Error("not implemented yet");
     }
 
     draw_default(ctx) {
@@ -112,46 +136,53 @@ export class Layout extends Node {
 
         let acc = l_pl;
         let row = 0;
+        let current_row_height = 0;
+        let total_rows_height = 0;
 
         for (let i = 0; i < this.children.length; i++) {
             const child = this.children[i];
 
             // item padding
-            const i_pr = child.padding[PADDING_POSITIONS.RIGHT];
-            const i_pl = child.padding[PADDING_POSITIONS.LEFT];
-            const i_pt = child.padding[PADDING_POSITIONS.TOP];
-            const i_pb = child.padding[PADDING_POSITIONS.BOTTOM];
+            const i_pr = child.padding[PADDING_POSITIONS.RIGHT] || 0;
+            const i_pl = child.padding[PADDING_POSITIONS.LEFT] || 0;
+            const i_pt = child.padding[PADDING_POSITIONS.TOP] || 0;
+            const i_pb = child.padding[PADDING_POSITIONS.BOTTOM] || 0;
 
-            let target_x = i_pl + acc;
-            
-            // prevent x overflow (x_pos + width + layout_left_padding)
-            if (target_x + child.w + l_pr > this.w) {
+            const item_total_width = i_pl + child.w + i_pr;
+
+            // check if fits in current row
+            if (acc + item_total_width > this.w - l_pr) {
+                total_rows_height += current_row_height;
                 row++;
-                acc = l_pl;    
-
-                // recalculate x pos
-                target_x = i_pl + acc;
+                acc = l_pl;
+                current_row_height = 0;
             }
 
-            let target_y = l_pt + row * (child.h + i_pt + i_pb);
+            const target_x = this.x + acc + i_pl;
+            const target_y = this.y + l_pt + total_rows_height + i_pt;
 
-            // prevent y overflow (not ideal)
-            if (target_y + l_pb > this.h) {
-                break;
+            // check y overflow
+            if (target_y + child.h + i_pb > this.y + this.h - l_pb) {
+                child.set_visible(false);
+            } else {
+                child.set_visible(true);
+                
+                // update position
+                child.update_pos(target_x, target_y);
+                
+                // check for events
+                child.update();
+                
+                // track max height for current row
+                current_row_height = Math.max(current_row_height, child.h + i_pt + i_pb);
             }
 
-            // update position
-            child.update_pos(target_x, target_y);
-
-            // check for events
-            child.update();
-
-            // add extra padding if necessary
-            acc += i_pl + child.w + i_pr;
+            // update accumulator
+            acc += item_total_width;
         }
 
         // render border
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.border_size);
+        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size);
     }
 };
 
@@ -170,8 +201,8 @@ export class UI {
         this.root.add(node);
     }
 
-    render() {
+    render(dt) {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.root.render(this.ctx);
+        this.root.render(this.ctx, dt);
     }
 };
