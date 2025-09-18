@@ -9,7 +9,12 @@ export class StyleData {
     constructor() {
         this.border_size = "1";
         this.border_color = "rgb(120, 120, 120)";
-        this.padding = [0, 0, 0, 0];
+        this.background_color = "rgb(255, 255, 255)";
+        this.padding = [0, 0, 0, 0]; // top, right, bottom, left
+    }
+
+    set_background_color(value) {
+        this.background_color = value;
     }
 
     set_border(size, color) {
@@ -18,14 +23,12 @@ export class StyleData {
     }
 
     set_padding(...values) {
-        if (values.length == 1) {
-            for (let i = 0; i < 4; i++) {
-                this.padding[i] = values[0];
+        if (values.length === 1) {
+            this.padding = [values[0], values[0], values[0], values[0]];
+        } else {
+            for (let i = 0; i < values.length; i++) {
+                this.padding[i] = values[i];
             }
-        }
-
-        for (let i = 0; i < values.length; i++) {
-            this.padding[i] = values[i];
         }
     }
 

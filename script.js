@@ -5,7 +5,7 @@ const canvas = document.getElementById("canvas");
 
 /*  TODO LIST
     - [x] layout/container
-    - [ ] nested layouts
+    - [x] node system
     - [x] render items on default layout mode
     - [ ] render items on flex layout mode
     - [ ] mouseup / mousedown events
@@ -27,7 +27,7 @@ ui.add(layout);
 
 // test
 for (let i = 0; i < 20; i++) {
-    const box = new Box();
+    const box = new Box(30, 30, Math.random() * 1 > 0.5);
 
     // add random colors
     const r = Math.floor(Math.random() * 255);
@@ -35,7 +35,7 @@ for (let i = 0; i < 20; i++) {
     const b = Math.floor(Math.random() * 255);
 
     // other style shit
-    box.set_border(5, `rgb(${r}, ${g}, ${b})`);
+    box.set_border(2, `rgb(${r}, ${g}, ${b})`);
     box.set_padding_bottom(10);
     box.set_padding_right(10);
     box.set_id(i);
