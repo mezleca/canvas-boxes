@@ -1,5 +1,7 @@
 import { Layout, UI } from "./js/canvas/canvas.js";
+import { render_text } from "./js/canvas/renderer.js";
 import { BoxWidget } from "./js/items/box.js";
+import { ButtonWidget } from "./js/items/button.js";
 import { TextWidget } from "./js/items/text.js";
 
 const canvas = document.getElementById("canvas");
@@ -12,20 +14,19 @@ const canvas = document.getElementById("canvas");
     - [ ] layout scroll system
     - [ ] render items on free layout mode
     - [ ] render items on flex layout mode
-    - [ ] mouseup / mousedown events
+    - [x] mouseup / mousedown events
     - [x] mouseover / mouseleave events
-    - [ ] click event
+    - [x] click event
     - [x] padding for container / items
     - [x] box item
     - [ ] spacer item
-    - [ ] text item
+    - [x] text item
+    - [ ] button item
     - [ ] checkbox item
 */
 
-let lastTime;
-
 const ui = new UI(canvas);
-const layout = new Layout(300, 300);
+const layout = new Layout(800, 600);
 const other_layout = new Layout(100, 200);
 
 ui.add(layout);
@@ -37,11 +38,17 @@ big_box.set_background_color("rgb(255, 255, 255)");
 
 other_layout.add(big_box);
 
+// main layout style
 layout.set_resizable(false);
+layout.set_background_color("rgb(30, 30, 30)");
+layout.set_padding(10);
+layout.set_border(3, "rgba(70, 70, 70, 1)");
+layout.border_radius = 5;
+
 // layout.add(other_layout);
 
 // add x boxes
-for (let i = 0; i < 1; i++) {
+for (let i = 0; i < 0; i++) {
     const size = Math.max(Math.floor(Math.random() * 50), 20);
     const box = new BoxWidget(size, size);
 
@@ -77,29 +84,30 @@ for (let i = 0; i < 1; i++) {
 }
 
 // add x texts
-for (let i = 0; i < 50; i++) {
-    const new_text = new TextWidget(i);
-    new_text.font_size = 20;
-
-    new_text.set_border(1, "rgb(150, 20, 20)");
+for (let i = 0; i < 5; i++) {
+    const new_text = new TextWidget("text " + i);
+    new_text.font_size = 24;
     layout.add(new_text);
 }
 
-// layout style
-layout.set_padding(10);
-layout.set_border(3, "rgb(30, 150, 200)");
+// add x buttons
+for (let i = 0; i < 3; i++) {
+    const new_button = new ButtonWidget("hello " + i, 40, 40);
+    new_button.font_size = 24;
+    new_button.border_radius = 5;
+
+    new_button.on("click", () => {
+        console.log("clicked at", i);
+    });
+
+    layout.add(new_button);
+}
 
 const update = (currentTime) => {
-    if (!lastTime) {
-        lastTime = currentTime;
-    }
+    ui.render();
+    ui.update(currentTime);
 
-    const delta_time = currentTime - lastTime;
-
-    // render node tree
-    ui.render(delta_time);
-
-    // next frame :D
+    render_text(ui.ctx, 10, screen.height / 2, "fps: " + ui.fps, "Arial", 20, "white");
     requestAnimationFrame(update);
 };
 

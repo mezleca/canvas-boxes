@@ -1,5 +1,5 @@
 import { StyleData, PADDING_POSITIONS } from "./style.js";
-import { cursor, update_viewport } from "../events/events.js";
+import { cursor, update_viewport, keys } from "../events/events.js";
 import { render_box } from "./renderer.js";
 
 export class Node extends StyleData {
@@ -15,6 +15,7 @@ export class Node extends StyleData {
         this.parent = null;
         this.visible = true;
         this.resizable = true;
+        this.holding = false;
         this.text = "";
     }
 
@@ -56,18 +57,40 @@ export class Node extends StyleData {
         // update hovered state
         if (is_hovered && !this.hovering) {
             this.hovering = true;
-        
-            // callback if possible
             const callback = this.events.get("mouseover");
             if (callback) callback(this);
         }
         
+        // send mouse leave
         if (!is_hovered && this.hovering) {
             this.hovering = false;
-
-            // callback if possible
             const callback = this.events.get("mouseleave");
             if (callback) callback(this);
+        }
+
+        // send mouse down
+        if (is_hovered && !this.holding && keys.has("m1")) {
+            this.holding = true;
+            const callback = this.events.get("mousedown");
+            if (callback) callback(this);
+        }
+
+        // cancel click
+        if (!is_hovered && this.holding && !keys.has("m1")) {
+            this.holding = false;
+            const callback = this.events.get("mouseup");
+            if (callback) callback(this);
+        }
+
+        // send both click and mouse up
+        if (is_hovered && this.holding && !keys.has("m1")) {
+            this.holding = false;
+
+            const mu_callback = this.events.get("mouseup");
+            if (mu_callback) mu_callback(this);
+
+            const cl_callback = this.events.get("click");
+            if (cl_callback) cl_callback(this);
         }
     }
 
@@ -90,7 +113,7 @@ export class Node extends StyleData {
     set_resizable(value) {
         this.resizable = value;
     }
-}
+};
 
 export class Layout extends Node {
     constructor(w, h) {
@@ -111,7 +134,7 @@ export class Layout extends Node {
 
     draw(ctx) {
         // render background/border first
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, null, this.border_size);
+        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size, this.border_radius);
 
         switch (this.type) {
             case "free":
@@ -160,7 +183,7 @@ export class Layout extends Node {
             const i_pt = child.padding[PADDING_POSITIONS.TOP] || 0;
             const i_pb = child.padding[PADDING_POSITIONS.BOTTOM] || 0;
 
-            const item_total_width = i_pl + child.w + i_pr;
+            const item_total_width = i_pl + child.w + i_pr + this.spacing;
             const full_x = acc + item_total_width;
             const available_width = this.w - l_pr;
 
@@ -205,6 +228,9 @@ export class Layout extends Node {
             // update position
             child.set_visible(true);
             child.update_pos(target_x, target_y);
+
+            // check for events
+            child.update();
             
             // track max height for current row
             current_row_height = Math.max(current_row_height, child.h + i_pt + i_pb);
@@ -213,7 +239,7 @@ export class Layout extends Node {
             acc += item_total_width;
         }
     }
-}
+};
 
 export class UI {
     /** @param {HTMLCanvasElement} canvas */
@@ -223,6 +249,11 @@ export class UI {
         }
 
         this.canvas = canvas;
+        this.delta_time = 0;
+        this.last_time = 0;
+        this.fps = 0;
+        this.last_fps_update = 0;
+        this.frame_count = 0;
         this.ctx = canvas.getContext("2d");
         this.root = new Node();
     }
@@ -231,11 +262,30 @@ export class UI {
         this.root.add(node);
     }
 
-    render(dt) {
+    render() {
         // update viewport
         update_viewport(this.canvas);
 
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.root.render(this.ctx, dt);
+        this.root.render(this.ctx, this.delta_time);
     }
-}
+
+    // called on loop
+    update(current_time) {
+        this.delta_time = (current_time - this.last_time) / 1000;
+        this.last_time = current_time;
+
+        // skip if delta time is too high
+        if (this.delta_time > 0.1) {
+            return;
+        }
+
+        this.frame_count++;
+
+        if (current_time - this.last_fps_update >= 1000) {
+            this.fps = Math.round(this.frame_count * 1000 / (current_time - this.last_fps_update));
+            this.frame_count = 0;
+            this.last_fps_update = current_time;
+        }
+    }
+};

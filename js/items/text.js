@@ -1,6 +1,5 @@
 import { Node } from "../canvas/canvas.js";
-import { render_box, render_text } from "../canvas/renderer.js";
-import { PADDING_POSITIONS } from "../canvas/style.js";
+import { get_text_metrics, render_box, render_text } from "../canvas/renderer.js";
 
 export class TextWidget extends Node {
     constructor(text = "") {
@@ -13,20 +12,19 @@ export class TextWidget extends Node {
 
     render(ctx) {
         if (!this.visible || this.text == "") return;
-        
+
+        const metrics = get_text_metrics(ctx, this.text, `${this.font_size}px ${this.font}`);
+
         // render text
-        const size = render_text(ctx, this.x, this.y, this.text, this.font, this.font_size, this.font_color);
+        render_text(ctx, this.x, this.y + metrics.height, this.text, this.font, this.font_size, this.font_color);
 
         // render border
         if (this.border_size && this.border_color != "") {
-            const padding_top = this.padding[PADDING_POSITIONS.TOP];
-
-            // HACK WARNING!!!!!!!!!!!!!!!
-            render_box(ctx, this.x, this.y - padding_top - 5, size.width, this.font_size, this.border_color, null, this.border_size);
+            render_box(ctx, this.x, this.y, metrics.width, this.font_size, this.border_color, null, this.border_size);
         }
 
         // update width / height
-        this.w = size.width;
-        this.h = this.font_size;
+        this.w = metrics.width;
+        this.h = metrics.height;
     }
 };

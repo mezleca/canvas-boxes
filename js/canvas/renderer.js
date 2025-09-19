@@ -1,40 +1,56 @@
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1) => {
-    const old_stroke_style = ctx.strokeStyle;
-    const old_line_width = ctx.lineWidth;
-    const old_fill_style = ctx.fillStyle;
+const draw_rect = (ctx, x, y, width, height, radius) => {
+    if (width < 2 * radius) radius = width / 2;
+    if (height < 2 * radius) radius = height / 2;
+    
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + width, y, x + width, y + height, radius);
+    ctx.arcTo(x + width, y + height, x, y + height, radius);
+    ctx.arcTo(x, y + height, x, y, radius);
+    ctx.arcTo(x, y, x + width, y, radius);
+    ctx.closePath();
+};
+
+/** @param {CanvasRenderingContext2D} ctx */
+export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, radius = 0) => {
+    ctx.save();
 
     ctx.lineWidth = border_size;
 
     if (fill_color) {
         ctx.fillStyle = fill_color;
-        ctx.fillRect(x, y, w, h);
+        draw_rect(ctx, x, y, w, h, radius);
+        ctx.fill();
     }
 
     if (color) {
         ctx.strokeStyle = color;
-        ctx.strokeRect(x, y, w, h);
+        draw_rect(ctx, x, y, w, h, radius);
+        ctx.stroke();
     }
 
-    // reset
-    ctx.strokeStyle = old_stroke_style;
-    ctx.fillStyle = old_fill_style;
-    ctx.lineWidth = old_line_width;
+    ctx.restore();
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_text = (ctx, x, y, text, font = "Arial", size = "16", color = "rgb(255, 255, 255)") => {
-    const old_font = ctx.font;
-    const old_style = ctx.fillStyle;
+export const get_text_metrics = (ctx, text, font) => {
+    ctx.save();
+    ctx.font = font;
+    const metrics = ctx.measureText(text);
+    const text_width = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
+    const text_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    ctx.restore();
+    return { ...metrics, width: text_width, height: text_height };
+};
 
+/** @param {CanvasRenderingContext2D} ctx */
+export const render_text = (ctx, x, y, text, font = "Arial", size = 16, color = "rgb(255, 255, 255)") => {
+    ctx.save();
+    
     ctx.font = `${size}px ${font}`;
     ctx.fillStyle = color;
+    
     ctx.fillText(text, x, y);
-
-    const text_size = ctx.measureText(text);
-
-    ctx.font = old_font;
-    ctx.old_style = old_style;
-
-    return { width: text_size.width, height: size };
+    ctx.restore();
 };

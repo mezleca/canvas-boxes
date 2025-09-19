@@ -10,7 +10,9 @@ export class StyleData {
         this.font = "Arial";
         this.font_size = 12;
         this.font_color = "rgb(255,255,255)";
+        this.spacing = 10;
         this.border_size = 1;
+        this.border_radius = 0;
         this.border_color = "";
         this.background_color = "";
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
