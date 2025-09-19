@@ -1,5 +1,9 @@
 ## canvas ui
-very basic ui using canvas
+very basic canvas ui thing
+
+<p align="center">
+  <img src="https://github.com/mezleca/canvas-ui/blob/main/static/showcase.png">
+</p>
 
 ## TODO (if i finish the todo list inside script.js)
 - [ ] webgl renderer
