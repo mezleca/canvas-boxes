@@ -1,5 +1,6 @@
 import { Layout, UI } from "./js/canvas/canvas.js";
-import { Box } from "./js/items/box.js";
+import { BoxWidget } from "./js/items/box.js";
+import { TextWidget } from "./js/items/text.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -25,20 +26,24 @@ let lastTime;
 
 const ui = new UI(canvas);
 const layout = new Layout(300, 300);
-const free_layout = new Layout(100, 200);
+const other_layout = new Layout(100, 200);
 
 ui.add(layout);
 
-const free_box = new Box(100, 100);
-free_layout.set_border(2, "rgb(120, 30, 250)");
-free_box.set_background_color("rgb(255, 255, 255)");
+const big_box = new BoxWidget(100, 100);
 
-free_layout.add(free_box);
-layout.add(free_layout);
+other_layout.set_border(2, "rgb(120, 30, 250)");
+big_box.set_background_color("rgb(255, 255, 255)");
 
+other_layout.add(big_box);
+
+layout.set_resizable(false);
+// layout.add(other_layout);
+
+// add x boxes
 for (let i = 0; i < 1; i++) {
     const size = Math.max(Math.floor(Math.random() * 50), 20);
-    const box = new Box(size, size);
+    const box = new BoxWidget(size, size);
 
     const should_include_background = Math.random() * 1 > 0.5;
 
@@ -69,6 +74,15 @@ for (let i = 0; i < 1; i++) {
 
     // insert on layout
     layout.add(box);
+}
+
+// add x texts
+for (let i = 0; i < 50; i++) {
+    const new_text = new TextWidget(i);
+    new_text.font_size = 20;
+
+    new_text.set_border(1, "rgb(150, 20, 20)");
+    layout.add(new_text);
 }
 
 // layout style

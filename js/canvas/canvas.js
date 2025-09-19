@@ -15,6 +15,7 @@ export class Node extends StyleData {
         this.parent = null;
         this.visible = true;
         this.resizable = true;
+        this.text = "";
     }
 
     add(child) {
@@ -80,6 +81,14 @@ export class Node extends StyleData {
 
     set_visible(value) {
         this.visible = value;
+    }
+
+    set_text(value) {
+        this.text = value;
+    }
+
+    set_resizable(value) {
+        this.resizable = value;
     }
 }
 
