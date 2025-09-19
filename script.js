@@ -13,7 +13,6 @@ const canvas = document.getElementById("canvas");
     - [ ] render next layout close to parent (rn is defaulting to 0,0)
     - [ ] layout scroll system
     - [ ] render items on free layout mode
-    - [ ] render items on flex layout mode
     - [x] mouseup / mousedown events
     - [x] mouseover / mouseleave events
     - [x] click event
@@ -96,8 +95,18 @@ for (let i = 0; i < 3; i++) {
     new_button.font_size = 24;
     new_button.border_radius = 5;
 
+    new_button.on("mouseover", () => {
+        new_button.font_color = "rgb(255, 255, 255)";
+        new_button.set_background_color("rgb(20, 160, 230)");
+    });
+
+    new_button.on("mouseleave", () => {
+        new_button.font_color = "black";
+        new_button.set_background_color("rgb(255, 255, 255)");
+    });
+
     new_button.on("click", () => {
-        console.log("clicked at", i);
+       alert("clicked at", i);
     });
 
     layout.add(new_button);

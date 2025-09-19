@@ -143,9 +143,6 @@ export class Layout extends Node {
             case "default":
                 this.layout_default();
                 break;
-            case "flex":
-                this.layout_flex();
-                break;
         }
     }
 
@@ -156,10 +153,6 @@ export class Layout extends Node {
                 child.update();
             }
         }
-    }
-
-    layout_flex() {
-        throw new Error("not implemented yet");
     }
 
     layout_default() {
