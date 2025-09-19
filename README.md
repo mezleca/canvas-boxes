@@ -8,38 +8,38 @@ very basic ui using canvas
 
 ## usage
 ```js
-    // create canvas ui
-    const ui = new UI(canvas);
+// create canvas ui
+const ui = new UI(canvas);
 
-    // create a new layout to store items (aka container)
-    const layout = new Layout(width, height);
+// create a new layout to store items (aka container)
+const layout = new Layout(width, height);
 
-    // basic widget
-    const text = new TextWidget("mhm");
+// basic widget
+const text = new TextWidget("mhm");
 
-    // custom widget example
-    class CustomWidget extends Node {
-        constructor() {
-            super();
-            // custom shit here
-        }
-
-        render() {
-            // render your shit here
-        }
+// custom widget example
+class CustomWidget extends Node {
+    constructor() {
+        super();
+        // custom shit here
     }
 
-    // set layout style
-    layout.set_background_color("rgb(30, 30, 30)");
-    layout.set_border(2, "white"); // border size, color
-    layout.set_padding(10); // top, right, bottom, left
-    
-    // set text style
-    text.font_size = 20;
-    text.font_color = "red";
+    render() {
+        // render your shit here
+    }
+}
 
-    // add widget to layout 
-    layout.add(text);
+// set layout style
+layout.set_background_color("rgb(30, 30, 30)");
+layout.set_border(2, "white"); // border size, color
+layout.set_padding(10); // top, right, bottom, left
 
-    // then just call layout.render on a loop
+// set text style
+text.font_size = 20;
+text.font_color = "red";
+
+// add widget to layout 
+layout.add(text);
+
+// then just call layout.render on a loop
 ```
