@@ -1,5 +1,5 @@
 import { StyleData, PADDING_POSITIONS } from "./style.js";
-import { cursor } from "../events/events.js";
+import { cursor, update_viewport } from "../events/events.js";
 import { render_box } from "./renderer.js";
 
 export class Node extends StyleData {
@@ -222,6 +222,7 @@ export class UI {
             throw new Error("missing canvas element");
         }
 
+        this.canvas = canvas;
         this.ctx = canvas.getContext("2d");
         this.root = new Node();
     }
@@ -231,6 +232,9 @@ export class UI {
     }
 
     render(dt) {
+        // update viewport
+        update_viewport(this.canvas);
+
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.root.render(this.ctx, dt);
     }
