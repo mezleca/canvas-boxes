@@ -1,8 +1,9 @@
-import { Layout, UI } from "./js/canvas/canvas.js";
+import { UI } from "./js/canvas/canvas.js";
+import { Layout } from "./js/widgets/layout.js";
 import { render_text } from "./js/canvas/renderer.js";
-import { BoxWidget } from "./js/items/box.js";
-import { ButtonWidget } from "./js/items/button.js";
-import { TextWidget } from "./js/items/text.js";
+import { BoxWidget } from "./js/widgets/box.js";
+import { ButtonWidget } from "./js/widgets/button.js";
+import { TextWidget } from "./js/widgets/text.js";
 
 const canvas = document.getElementById("canvas");
 

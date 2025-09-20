@@ -13,24 +13,23 @@ const draw_rect = (ctx, x, y, width, height, radius) => {
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, radius = 0) => {
-    ctx.save();
-
+export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, radius = 0, masked) => {
     ctx.lineWidth = border_size;
+    draw_rect(ctx, x, y, w, h, radius);
+
+    if (masked) {
+        ctx.clip();
+    }
 
     if (fill_color) {
         ctx.fillStyle = fill_color;
-        draw_rect(ctx, x, y, w, h, radius);
         ctx.fill();
     }
 
     if (color) {
         ctx.strokeStyle = color;
-        draw_rect(ctx, x, y, w, h, radius);
         ctx.stroke();
     }
-
-    ctx.restore();
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
