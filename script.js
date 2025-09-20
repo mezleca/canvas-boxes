@@ -19,8 +19,10 @@ const canvas = document.getElementById("canvas");
     - [x] mouseover / mouseleave events
     - [x] click event
     - [x] padding for container / items
+    - [ ] align_x (layout)
+    - [ ] align_y (layout)
     - [x] box item
-    - [ ] spacer item
+    - [ ] spacer item (occupies whole row or space defined by the user)
     - [x] text item
     - [x] button item
     - [ ] checkbox item
