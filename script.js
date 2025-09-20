@@ -26,6 +26,7 @@ const canvas = document.getElementById("canvas");
     - [x] box item
     - [ ] spacer item (occupies whole row or space defined by the user)
     - [x] text item
+    - [x] align text
     - [x] button item
     - [ ] image item
     - [ ] checkbox item
@@ -53,8 +54,8 @@ layout.y = 100;
 // layout.add(other_layout);
 
 // add x boxes
-for (let i = 0; i < 0; i++) {
-    const size = Math.max(Math.floor(Math.random() * 50), 20);
+for (let i = 0; i < 5; i++) {
+    const size = 50;
     const box = new BoxWidget(size, size);
 
     const should_include_background = Math.random() * 1 > 0.5;
