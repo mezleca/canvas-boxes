@@ -14,23 +14,31 @@ export class ButtonWidget extends Node {
     }
 
     render(ctx) {
+        if (!this.visible) return;
+
         const text_metrics = get_text_metrics(ctx, this.text, `${this.font_size}px ${this.font}`);
 
-        if (text_metrics.width * 2 > this.w) {
-            this.w = text_metrics.width * 2;
+        let text_w = text_metrics.width * 2;
+        let text_h = text_metrics.height * 2;
+
+        if (text_w > this.w) {
+            text_w -= this.w - text_w;
         }
 
-        if (text_metrics.height * 2 > this.h) {
-            this.h = text_metrics.height * 2;
+        if (text_h > this.h) {
+            text_h -= this.h - text_h;
         }
 
-        const target_w = this.padding[PADDING_POSITIONS.LEFT] + this.w + this.padding[PADDING_POSITIONS.RIGHT];
-        const target_h = this.padding[PADDING_POSITIONS.TOP] + this.h + this.padding[PADDING_POSITIONS.BOTTOM];
+        const target_w = this.padding[PADDING_POSITIONS.LEFT] + text_w + this.padding[PADDING_POSITIONS.RIGHT];
+        const target_h = this.padding[PADDING_POSITIONS.TOP] + text_h + this.padding[PADDING_POSITIONS.BOTTOM];
         
         // render button box
         render_box(ctx, this.x, this.y, target_w, target_h, this.border_color, this.background_color, this.border_size, this.border_radius);
 
         // render centered text
         render_text(ctx, this.x + (text_metrics.width) / 2, this.y + (this.h + text_metrics.height) / 2, this.text, this.font, this.font_size, this.font_color);
+
+        this.w = target_w;
+        this.h = target_h;
     }
 };

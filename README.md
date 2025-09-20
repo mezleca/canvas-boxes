@@ -23,15 +23,22 @@ const text = new TextWidget("mhm");
 
 // custom widget example
 class CustomWidget extends Node {
-    constructor() {
+    constructor(w, h) {
         super();
-        // custom shit here
+        // optional
+        this.w = w;
+        this.h = h;
+        ...
     }
 
-    render() {
-        // render your shit here
+    render(ctx) {
+        render_box(ctx, this.x, this.y, this.w, this.h, ...);
+
+        // update your w / h if necessary
+        this.w = ...
+        this.h = ...
     }
-}
+};
 
 // set layout style
 layout.set_background_color("rgb(30, 30, 30)");
@@ -45,5 +52,14 @@ text.font_color = "red";
 // add widget to layout 
 layout.add(text);
 
+// add layout to ui
+ui.add(layout);
+
 // then just call layout.render on a loop
+const update = (currentTime) => {
+    ui.render(currentTime);
+};
+
+// start loop
+requestAnimationFrame(update);
 ```

@@ -10,9 +10,11 @@ const canvas = document.getElementById("canvas");
     - [x] layout/container
     - [x] node system
     - [x] render items on default layout mode
-    - [ ] render next layout close to parent (rn is defaulting to 0,0)
-    - [ ] layout scroll system
-    - [ ] render items on free layout mode
+    - [x] render next layout close to parent (rn is defaulting to 0,0)
+    - [x] node scroll system
+    - [x] basic scroll style
+    - [ ] dynamic scroll size (the bigger the content the smaller it gets)
+    - [x] render items on free layout mode
     - [x] mouseup / mousedown events
     - [x] mouseover / mouseleave events
     - [x] click event
@@ -20,12 +22,12 @@ const canvas = document.getElementById("canvas");
     - [x] box item
     - [ ] spacer item
     - [x] text item
-    - [ ] button item
+    - [x] button item
     - [ ] checkbox item
 */
 
 const ui = new UI(canvas);
-const layout = new Layout(800, 600);
+const layout = new Layout(800, 300);
 const other_layout = new Layout(100, 200);
 
 ui.add(layout);
@@ -43,6 +45,9 @@ layout.set_background_color("rgb(30, 30, 30)");
 layout.set_padding(10);
 layout.set_border(3, "rgba(70, 70, 70, 1)");
 layout.border_radius = 5;
+
+layout.x = 150;
+layout.y = 100;
 
 // layout.add(other_layout);
 
@@ -83,14 +88,14 @@ for (let i = 0; i < 0; i++) {
 }
 
 // add x texts
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 50; i++) {
     const new_text = new TextWidget("text " + i);
     new_text.font_size = 24;
     layout.add(new_text);
 }
 
 // add x buttons
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 50; i++) {
     const new_button = new ButtonWidget("hello " + i, 40, 40);
     new_button.font_size = 24;
     new_button.border_radius = 5;
@@ -106,15 +111,14 @@ for (let i = 0; i < 3; i++) {
     });
 
     new_button.on("click", () => {
-       alert("clicked at", i);
+       alert("clicked at " + i);
     });
 
     layout.add(new_button);
 }
 
 const update = (currentTime) => {
-    ui.render();
-    ui.update(currentTime);
+    ui.render(currentTime);
 
     render_text(ui.ctx, 10, screen.height / 2, "fps: " + ui.fps, "Arial", 20, "white");
     requestAnimationFrame(update);

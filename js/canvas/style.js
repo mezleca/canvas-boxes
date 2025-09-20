@@ -15,6 +15,10 @@ export class StyleData {
         this.border_radius = 0;
         this.border_color = "";
         this.background_color = "";
+        this.scrollbar_width = 12;
+        this.scrollbar_height = 24;
+        this.scrollbar_color = "rgba(187, 187, 187, 0.8)";
+        this.scrollbar_background_color = "rgb(120, 120, 120, 0.3)";
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
     }
 
@@ -28,7 +32,7 @@ export class StyleData {
     }
 
     set_padding(...values) {
-        if (values.length === 1) {
+        if (values.length == 1) {
             this.padding = [values[0], values[0], values[0], values[0]];
         } else {
             for (let i = 0; i < values.length; i++) {
