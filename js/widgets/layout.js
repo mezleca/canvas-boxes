@@ -33,21 +33,21 @@ export class Layout extends Node {
         render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size, this.border_radius, true);
     }
 
-    calculate_layout() {
+    calculate_layout(ctx) {
         if (!this.layout_dirty) {
             return;
         }
 
         // first calculate element position
         switch (this.type) {
-            case "free": this.calculate_free_layout(); break;
-            case "default": this.calculate_default_layout(); break;
+            case "free": this.calculate_free_layout(ctx); break;
+            case "default": this.calculate_default_layout(ctx); break;
         }
 
         this.layout_dirty = false;
     }
 
-    calculate_free_layout() {
+    calculate_free_layout(ctx) {
         let content_bottom = 0;
 
         for (const child of this.children) {
@@ -60,7 +60,7 @@ export class Layout extends Node {
         this.content_height = content_bottom;
     }
 
-    calculate_default_layout() {
+    calculate_default_layout(ctx) {
         // layout padding
         const l_pr = this.padding[PADDING_POSITIONS.RIGHT] || 0;
         const l_pl = this.padding[PADDING_POSITIONS.LEFT] || 0;
@@ -75,6 +75,9 @@ export class Layout extends Node {
         const available_width = this.w - l_pl - l_pr;
 
         for (const child of this.children) {
+            // calculate position if possible
+            if (child.calculate) child.calculate(ctx);
+
             // item padding
             const i_pr = child.padding[PADDING_POSITIONS.RIGHT] || 0;
             const i_pl = child.padding[PADDING_POSITIONS.LEFT] || 0;
@@ -112,7 +115,7 @@ export class Layout extends Node {
         this.content_height = content_height + l_pb;
     }
 
-    update_recursive() {
+    update_recursive(ctx) {
         // update scroll position
         const scroll_updated = this.handle_scroll();
 
@@ -120,14 +123,14 @@ export class Layout extends Node {
             this.layout_dirty = true;
         }
 
-        this.calculate_layout();
+        this.calculate_layout(ctx);
         super.update();
 
         for (const child of this.children) {
             const original_y = child.y;
             child.y -= this.scroll_top;
             if (child.visible) {
-                child.update_recursive();
+                child.update_recursive(ctx);
             }
             child.y = original_y;
         }

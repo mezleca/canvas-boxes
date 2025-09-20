@@ -7,6 +7,8 @@ export const PADDING_POSITIONS = {
 
 export class StyleData {
     constructor() {
+        this.text_align = "left";
+        this.text_baseline = "alphabetic";
         this.font = "Arial";
         this.font_size = 12;
         this.font_color = "rgb(255,255,255)";
@@ -20,6 +22,7 @@ export class StyleData {
         this.scrollbar_color = "rgba(187, 187, 187, 0.8)";
         this.scrollbar_background_color = "rgb(120, 120, 120, 0.3)";
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
+        this.rotate = 0;
     }
 
     set_background_color(value) {

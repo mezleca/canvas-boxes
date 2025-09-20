@@ -13,13 +13,9 @@ const draw_rect = (ctx, x, y, width, height, radius) => {
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, radius = 0, masked) => {
+export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, radius = 0) => {
     ctx.lineWidth = border_size;
     draw_rect(ctx, x, y, w, h, radius);
-
-    if (masked) {
-        ctx.clip();
-    }
 
     if (fill_color) {
         ctx.fillStyle = fill_color;
@@ -33,23 +29,27 @@ export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, 
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
+export const render_image = (ctx, image, x, y, w, h, r) => {
+    render_box(ctx, x, y, w, h, "rgb(0,0,0,0)", "rgb(0,0,0,0)", 0, r);
+    ctx.clip();
+    ctx.drawImage(image, x, y, w, h);
+};
+
+/** @param {CanvasRenderingContext2D} ctx */
 export const get_text_metrics = (ctx, text, font) => {
-    ctx.save();
     ctx.font = font;
     const metrics = ctx.measureText(text);
     const text_width = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
     const text_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-    ctx.restore();
     return { ...metrics, width: text_width, height: text_height };
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_text = (ctx, x, y, text, font = "Arial", size = 16, color = "rgb(255, 255, 255)") => {
-    ctx.save();
-    
+export const render_text = (ctx, x, y, text, font = "Arial", size = 16, color = "rgb(255, 255, 255)", align, baseline) => {
     ctx.font = `${size}px ${font}`;
     ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
     
     ctx.fillText(text, x, y);
-    ctx.restore();
 };

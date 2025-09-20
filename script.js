@@ -4,6 +4,7 @@ import { render_text } from "./js/canvas/renderer.js";
 import { BoxWidget } from "./js/widgets/box.js";
 import { ButtonWidget } from "./js/widgets/button.js";
 import { TextWidget } from "./js/widgets/text.js";
+import { ImageWidget } from "./js/widgets/image.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -32,16 +33,12 @@ const canvas = document.getElementById("canvas");
 
 const ui = new UI(canvas);
 const layout = new Layout(800, 300);
-const other_layout = new Layout(100, 200);
 
 ui.add(layout);
 
 const big_box = new BoxWidget(100, 100);
 
-other_layout.set_border(2, "rgb(120, 30, 250)");
 big_box.set_background_color("rgb(255, 255, 255)");
-
-other_layout.add(big_box);
 
 // main layout style
 layout.set_resizable(false);
@@ -92,15 +89,14 @@ for (let i = 0; i < 0; i++) {
 }
 
 // add x texts
-for (let i = 0; i < 50; i++) {
+for (let i = 0; i < 5; i++) {
     const new_text = new TextWidget("text " + i);
     new_text.font_size = 24;
     layout.add(new_text);
 }
 
-// add x buttons
-for (let i = 0; i < 50; i++) {
-    const new_button = new ButtonWidget("hello " + i, 40, 40);
+const add_button = (text, click) => {
+    const new_button = new ButtonWidget(text, 40, 40);
     new_button.font_size = 24;
     new_button.border_radius = 5;
 
@@ -114,11 +110,37 @@ for (let i = 0; i < 50; i++) {
         new_button.set_background_color("rgb(255, 255, 255)");
     });
 
-    new_button.on("click", () => {
-       alert("clicked at " + i);
-    });
+    if (click) new_button.on("click", click);
 
     layout.add(new_button);
+};
+
+// add x buttons
+for (let i = 0; i < 5; i++) {
+    add_button(`hello ${i}`);
+}
+
+add_button("add exp cat", () => {
+    add_cat();
+});
+
+const add_cat = () => {
+    const img = new Image();
+    img.src = "./static/cat.png";
+    const new_image = new ImageWidget(img, 100, 100);
+    new_image.on("click", async () => {
+        const audio = new Audio("./static/ex.mp3");
+        audio.volume = 0.01;
+        if (!audio.paused) audio.pause();
+        audio.play();
+        layout.remove(new_image.id);
+    });
+    layout.add(new_image);
+};  
+
+// add x images
+for (let i = 0; i < 0; i++) {
+    add_cat();
 }
 
 const update = (currentTime) => {

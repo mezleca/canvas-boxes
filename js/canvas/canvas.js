@@ -179,6 +179,8 @@ export class Node extends StyleData {
 
                 this.scroll_top = Math.max(0, Math.min(new_scroll, this.max_scroll));
             }
+        } else {
+            this.scroll_top = 0;
         }
 
         return updated;
@@ -215,7 +217,7 @@ export class Node extends StyleData {
         );
     }
 
-    update_recursive() {
+    update_recursive(ctx) {
         this.update();
 
         let scroll_updated = false;
@@ -232,11 +234,11 @@ export class Node extends StyleData {
                 const original_y = child.y;
                 child.y -= this.scroll_top;
                 if (child.visible) {
-                    child.update_recursive();
+                    child.update_recursive(ctx);
                 }
                 child.y = original_y;
             } else {
-                child.update_recursive();
+                child.update_recursive(ctx);
             }
         }
     }
@@ -303,7 +305,7 @@ export class UI {
             return;
         }
 
-        this.root.update_recursive();
+        this.root.update_recursive(this.ctx);
         this.frame_count++;
 
         if (current_time - this.last_fps_update >= 1000) {
