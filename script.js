@@ -25,6 +25,7 @@ const canvas = document.getElementById("canvas");
     - [ ] spacer item (occupies whole row or space defined by the user)
     - [x] text item
     - [x] button item
+    - [ ] image item
     - [ ] checkbox item
 */
 
