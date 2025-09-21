@@ -15,7 +15,7 @@ const canvas = document.getElementById("canvas");
     - [x] render next layout close to parent (rn is defaulting to 0,0)
     - [x] node scroll system
     - [x] basic scroll style
-    - [ ] dynamic scroll size (the bigger the content the smaller it gets)
+    - [x] dynamic scrollbar thumb height (the bigger the content the smaller it gets)
     - [x] render items on free layout mode
     - [x] mouseup / mousedown events
     - [x] mouseover / mouseleave events
@@ -54,7 +54,7 @@ layout.y = 50;
 // layout.add(other_layout);
 
 // add x boxes
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 150; i++) {
     const size = 50;
     const box = new BoxWidget(size, size);
 

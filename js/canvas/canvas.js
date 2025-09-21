@@ -27,7 +27,6 @@ export class Node extends StyleData {
         // scrollbar default
         this.scrollbar_width = 12;
         this.scrollbar_thumb_width = 12;
-        this.scrollbar_thumb_height = 20;
         this.scrollbar_background_width = 12;
         this.scrollbar_background_color = "rgb(0, 0, 0, 0)";
         this.scrollbar_thumb_color = "rgb(160, 160, 160, 0.7)";
@@ -202,14 +201,18 @@ export class Node extends StyleData {
         );
 
         // render thumb
-        const scroll_frac = this.scroll_top / this.max_scroll;
-        const thumb_y = this.y + scroll_frac * (this.h - this.scrollbar_thumb_height);
+        const view_ratio = this.h / this.content_height;
+        const thumb_height = Math.max(20, this.h * view_ratio);
+        const max_scroll = Math.max(1, this.content_height - this.h);
+        const scroll_frac = this.scroll_top / max_scroll;
+        const available_space = this.h - thumb_height;
+        const thumb_y = this.y + scroll_frac * available_space;
 
         render_box(ctx,
             scrollbar_x,
             thumb_y,
             this.scrollbar_thumb_width,
-            this.scrollbar_thumb_height,
+            thumb_height,
             null,
             this.scrollbar_thumb_color,
             null,
