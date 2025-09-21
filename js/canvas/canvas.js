@@ -1,10 +1,9 @@
-import { StyleData } from "./style.js";
+import { NodeStyle, StyleState } from "./style.js";
 import { cursor, update_viewport, keys } from "../events/dom.js";
 import { render_box } from "./renderer.js";
 
-export class Node extends StyleData {
+export class Node {
     constructor() {
-        super();
         this.x = 0;
         this.y = 0;
         this.w = 0;
@@ -14,7 +13,6 @@ export class Node extends StyleData {
         this.children = [];
         this.parent = null;
         this.visible = true;
-        this.resizable = true;
         this.has_overflow = false;
         this.holding = false;
         this.text = "";
@@ -23,6 +21,7 @@ export class Node extends StyleData {
         this.content_height = 0;
         this.layout_dirty = false;
         this.holding_scrollbar = false;
+        this.style = new NodeStyle();
 
         // scrollbar default
         this.scrollbar_width = 12;
@@ -35,6 +34,21 @@ export class Node extends StyleData {
     add(child) {
         child.parent = this;
         this.children.push(child);
+    }
+
+    /** @returns {StyleState} */
+    get_style() {
+        return this.style.get_current();
+    }
+
+    update_style_state(is_hovered, is_active) {
+        if (is_active) {
+            this.style.set_current_state("active");
+        } else if (is_hovered) {
+            this.style.set_current_state("hover");
+        } else {
+            this.style.set_current_state("default");
+        }
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
@@ -84,6 +98,9 @@ export class Node extends StyleData {
         const is_hovered = this.is_hovered();
         const has_m1_pressed = keys.has("mouse1");
 
+        // updat style state
+        this.update_style_state(is_hovered, has_m1_pressed && this.holding);
+
         // update hovered state
         if (is_hovered && !this.hovering) {
             this.hovering = true;
@@ -121,6 +138,10 @@ export class Node extends StyleData {
 
             const cl_callback = this.events.get("click");
             if (cl_callback) cl_callback(this);
+        }
+
+        if (this.holding && !has_m1_pressed) {
+            this.holding = false;
         }
     }
 
@@ -186,6 +207,7 @@ export class Node extends StyleData {
     }
 
     render_scrollbar(ctx) {
+        const style = this.get_style();
         const scrollbar_x = this.x + this.w - this.scrollbar_width;
 
         // render background
@@ -216,7 +238,7 @@ export class Node extends StyleData {
             null,
             this.scrollbar_thumb_color,
             null,
-            this.border_radius
+            style.border_radius
         );
     }
 
@@ -260,10 +282,6 @@ export class Node extends StyleData {
 
     set_text(value) {
         this.text = value;
-    }
-
-    set_resizable(value) {
-        this.resizable = value;
     }
 };
 

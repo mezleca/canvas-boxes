@@ -36,8 +36,10 @@ export const render_image = (ctx, image, x, y, w, h, r) => {
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const get_text_metrics = (ctx, text, font) => {
+export const get_text_metrics = (ctx, text, align, baseline, font) => {
     ctx.font = font;
+    ctx.textAlign = align;
+    ctx.textBaseline = baseline;
     const metrics = ctx.measureText(text);
     const text_width = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
     const text_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;

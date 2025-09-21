@@ -5,12 +5,15 @@ export class TextWidget extends Node {
     constructor(text = "") {
         super();
         if (text != "") this.text = text;
-        this.text_baseline = "middle";
+        
+        // set default text style
+        this.style.set_font("Arial", "20", "white");
     }
 
     calculate(ctx) {
         ctx.save();
-        const metrics = get_text_metrics(ctx, this.text, `${this.font_size}px ${this.font}`);
+        const style = this.get_style();
+        const metrics = get_text_metrics(ctx, this.text, style.text_baseline, style.text_align, `${style.font_size}px ${style.font}`);
         this.w = metrics.width;
         this.h = metrics.height;
         ctx.restore();
@@ -18,6 +21,8 @@ export class TextWidget extends Node {
 
     render(ctx) {
         if (!this.visible || this.text == "") return;
+
+        const style = this.get_style();
 
         ctx.save();
 
@@ -27,16 +32,16 @@ export class TextWidget extends Node {
             this.x, 
             this.y + this.h, 
             this.text, 
-            this.font, 
-            this.font_size, 
-            this.font_color, 
-            this.text_align, 
-            this.text_baseline
+            style.font, 
+            style.font_size, 
+            style.font_color, 
+            style.text_align, 
+            style.text_baseline
         );
 
         // render border
-        if (this.border_size && this.border_color != "") {
-            render_box(ctx, this.x, this.y, this.w, this.font_size, this.border_color, null, this.border_size);
+        if (style.border_size && style.border_color != "") {
+            render_box(ctx, this.x, this.y, this.w, style.font_size, style.border_color, null, style.border_size);
         }
 
         ctx.restore();

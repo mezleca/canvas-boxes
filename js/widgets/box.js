@@ -10,8 +10,21 @@ export class BoxWidget extends Node {
 
     render(ctx) {
         if (!this.visible) return;
+
+        const style = this.get_style();
         
         // render item
-        render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size, this.border_radius, this.has_overflow);
+        render_box(
+            ctx, 
+            this.x, 
+            this.y, 
+            this.w, 
+            this.h, 
+            style.border_color, 
+            style.background_color, 
+            style.border_size, 
+            style.border_radius, 
+            this.has_overflow
+        );
     }
 };

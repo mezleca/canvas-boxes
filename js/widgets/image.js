@@ -23,16 +23,16 @@ export class ImageWidget extends Node {
             return;
         }
 
+        const style = this.get_style();
+
         ctx.save();
         ctx.translate(this.x + this.w / 2, this.y + this.h / 2);
 
-        // this.rotate += 5 * dt;
-
         if (this.rotate != 0) {
-            ctx.rotate(this.rotate);
+            ctx.rotate(style.rotate);
         }
 
-        render_image(ctx, this.image, -this.w / 2, -this.h / 2, this.w, this.h, this.radius);
+        render_image(ctx, this.image, -this.w / 2, -this.h / 2, this.w, this.h, style.border_radius);
         ctx.restore();
     }
 };

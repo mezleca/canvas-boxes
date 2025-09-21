@@ -33,99 +33,51 @@ const canvas = document.getElementById("canvas");
 */
 
 const ui = new UI(canvas);
-const layout = new DefaultLayout(800, 600);
 
-ui.add(layout);
+const setup = () => {
+    const layout = new DefaultLayout(800, 400);
 
-const big_box = new FreeLayout(100, 100);
+    // set layout style
+    layout.style.set_background_color("rgb(20, 20, 20)");
+    layout.style.set_padding(10);
+    layout.style.set_border(3, "rgba(120, 120, 120, 1)");
+    layout.style.set_border_radius(4);
+    layout.style.set_spacing(20);
 
-big_box.set_background_color("rgb(255, 255, 255)");
+    // extra layout options
+    layout.set_auto_resize(false, true); // w, h
 
-// main layout style
-layout.set_resizable(false);
-layout.set_background_color("rgb(30, 30, 30)");
-layout.set_padding(10);
-layout.set_border(3, "rgba(70, 70, 70, 1)");
-layout.border_radius = 5;
+    // custom layout position
+    layout.x = 100;
+    layout.y = 50;
 
-layout.x = 100;
-layout.y = 50;
+    const button = new ButtonWidget("add cat");
 
-// layout.add(other_layout);
+    // set button style
+    button.style.set_font("Arial", 20, "white");
+    button.style.set_border_radius(4);
+    button.style.set_padding(15, 25, 15, 25);
+    button.style.set_background_color("rgb(50, 50, 50)");
 
-// add x boxes
-for (let i = 0; i < 150; i++) {
-    const size = 50;
-    const box = new BoxWidget(size, size);
+    // add hover state
+    button.style.set_border_color("rgb(120, 120, 120)", "hover");
 
-    const should_include_background = Math.random() * 1 > 0.5;
-
-    // add random colors to border / background
-    const r = Math.floor(Math.random() * 255);
-    const g = Math.floor(Math.random() * 255);
-    const b = Math.floor(Math.random() * 255);
-
-    if (!should_include_background) {
-        box.set_background_color(`rgb(${r}, ${g}, ${b})`);
-    }
-    
-    box.set_border(2, `rgb(${r}, ${g}, ${b})`);
-
-    // other styles
-    box.set_padding_bottom(10);
-    box.set_padding_right(10);
-    box.set_id(i);
-
-    // event listeners
-    box.on("mouseover", (data) => {
-        console.log("hovering", data.id);
+    // add cat on click
+    button.on("click", () => {
+        const new_cat = create_cat(() => {
+            console.log("removing", new_cat.id);
+            layout.remove(new_cat.id);
+        });
+        layout.add(new_cat);
     });
 
-    box.on("mouseleave", (data) => {
-        console.log("leaving", data.id);
-    });
+    layout.add(button);
 
-    // insert on layout
-    layout.add(box);
-}
-
-// add x texts
-for (let i = 0; i < 0; i++) {
-    const new_text = new TextWidget("text " + i);
-    new_text.font_size = 24;
-    layout.add(new_text);
-}
-
-const add_button = (text, click) => {
-    const new_button = new ButtonWidget(text, 40, 40);
-    new_button.font_size = 24;
-    new_button.border_radius = 5;
-
-    new_button.on("mouseover", () => {
-        new_button.font_color = "rgb(255, 255, 255)";
-        new_button.set_background_color("rgb(20, 160, 230)");
-    });
-
-    new_button.on("mouseleave", () => {
-        new_button.font_color = "black";
-        new_button.set_background_color("rgb(255, 255, 255)");
-    });
-
-    if (click) new_button.on("click", click);
-
-    layout.add(new_button);
+    // add to root
+    ui.add(layout);
 };
 
-// add x buttons
-for (let i = 0; i < 0; i++) {
-    add_button(`hello ${i}`);
-}
-
-add_button("add exp cat", () => {
-    add_cat();
-});
-
-const add_cat = () => {
+const create_cat = (cb) => {
     const img = new Image();
     img.src = "./static/cat.png";
     const new_image = new ImageWidget(img, 100, 100);
@@ -134,15 +86,12 @@ const add_cat = () => {
         audio.volume = 0.01;
         if (!audio.paused) audio.pause();
         audio.play();
-        layout.remove(new_image.id);
+        cb();
     });
-    layout.add(new_image);
-};  
+    return new_image;
+};
 
-// add x images
-for (let i = 0; i < 0; i++) {
-    add_cat();
-}
+setup();
 
 const update = (currentTime) => {
     ui.render(currentTime);
