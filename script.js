@@ -1,5 +1,5 @@
 import { UI } from "./js/canvas/canvas.js";
-import { Layout } from "./js/widgets/layout.js";
+import { DefaultLayout, FreeLayout } from "./js/widgets/layout.js";
 import { render_text } from "./js/canvas/renderer.js";
 import { BoxWidget } from "./js/widgets/box.js";
 import { ButtonWidget } from "./js/widgets/button.js";
@@ -33,11 +33,11 @@ const canvas = document.getElementById("canvas");
 */
 
 const ui = new UI(canvas);
-const layout = new Layout(800, 300);
+const layout = new DefaultLayout(800, 600);
 
 ui.add(layout);
 
-const big_box = new BoxWidget(100, 100);
+const big_box = new FreeLayout(100, 100);
 
 big_box.set_background_color("rgb(255, 255, 255)");
 
@@ -48,8 +48,8 @@ layout.set_padding(10);
 layout.set_border(3, "rgba(70, 70, 70, 1)");
 layout.border_radius = 5;
 
-layout.x = 150;
-layout.y = 100;
+layout.x = 50;
+layout.y = 50;
 
 // layout.add(other_layout);
 

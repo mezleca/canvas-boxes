@@ -2,7 +2,8 @@ import { Node } from "../canvas/canvas.js";
 import { PADDING_POSITIONS } from "../canvas/style.js";
 import { render_box } from "../canvas/renderer.js";
 
-export class Layout extends Node {
+// base: here you will find all of the functions related to (draw bg, add child, update recursive items, etc...) but no calculation is done here
+export class BaseLayout extends Node {
     constructor(w, h) {
         super();
         this.type = "default";
@@ -13,7 +14,6 @@ export class Layout extends Node {
         this.has_overflow = true;
     }
 
-    // override
     add(child) {
         child.parent = this;
         this.layout_dirty = true;
@@ -33,34 +33,47 @@ export class Layout extends Node {
         render_box(ctx, this.x, this.y, this.w, this.h, this.border_color, this.background_color, this.border_size, this.border_radius, true);
     }
 
-    calculate_layout(ctx) {
-        if (!this.layout_dirty) {
+    calculate(ctx) { }
+
+    render(ctx, dt) {
+        if (!this.visible) {
             return;
         }
 
-        // first calculate element position
-        switch (this.type) {
-            case "free": this.calculate_free_layout(ctx); break;
-            case "default": this.calculate_default_layout(ctx); break;
-        }
+        // render background / border
+        ctx.save();
+        this.draw(ctx);
+        ctx.clip();
 
-        this.layout_dirty = false;
-    }
-
-    calculate_free_layout(ctx) {
-        let content_bottom = 0;
+        this.calculate(ctx);
 
         for (const child of this.children) {
-            const display_y = child.y - this.scroll_top;
-            const is_visible = display_y + child.h >= this.y && display_y <= this.y + this.h;
-            child.set_visible(is_visible);
-            content_bottom = Math.max(content_bottom, child.y - this.y + child.h);
+            const original_y = child.y;
+            child.y -= this.scroll_top;
+            if (child.visible) {
+                child.render(ctx, dt);
+            }
+            child.y = original_y;
         }
 
-        this.content_height = content_bottom;
+        // render scrollbar if needed
+        if (this.max_scroll > 0) {
+            this.render_scrollbar(ctx);
+        }
+
+        ctx.restore();
+    }
+};
+
+// default: items will be placed side by side, you can also enable auto-resize to prevent new rows from being created
+export class DefaultLayout extends BaseLayout {
+    constructor(w, h) {
+        super(w, h);
     }
 
-    calculate_default_layout(ctx) {
+    calculate(ctx) {
+        if (!this.layout_dirty) return;
+
         // layout padding
         const l_pr = this.padding[PADDING_POSITIONS.RIGHT] || 0;
         const l_pl = this.padding[PADDING_POSITIONS.LEFT] || 0;
@@ -113,53 +126,42 @@ export class Layout extends Node {
 
         // store for scroll check
         this.content_height = content_height + l_pb;
+        this.layout_dirty = false;
+    }
+};
+
+// free: you can place the items anywhere you want (otherwise it will defaults to layout's x,y)
+export class FreeLayout extends BaseLayout {
+    constructor(w, h) {
+        super(w, h);
     }
 
-    update_recursive(ctx) {
-        // update scroll position
-        const scroll_updated = this.handle_scroll();
-
-        if (scroll_updated) {
-            this.layout_dirty = true;
-        }
-
-        this.calculate_layout(ctx);
-        super.update();
+    calculate(ctx) {
+        if (!this.layout_dirty) return;
+        
+        let content_bottom = this.y;
 
         for (const child of this.children) {
-            const original_y = child.y;
-            child.y -= this.scroll_top;
-            if (child.visible) {
-                child.update_recursive(ctx);
-            }
-            child.y = original_y;
-        }
-    }
+            // calculate position if possible
+            if (child.calculate) child.calculate(ctx);
 
-    render(ctx, dt) {
-        if (!this.visible) {
-            return;
-        }
+            // fallback to layout position
+            if (child.x == 0) child.x = this.x;
+            if (child.y == 0) child.y = this.y;
 
-        // render background / border
-        ctx.save();
-        this.draw(ctx);
-        ctx.clip();
+            const child_top = child.y;
+            const child_bottom = child.y + child.h;
 
-        for (const child of this.children) {
-            const original_y = child.y;
-            child.y -= this.scroll_top;
-            if (child.visible) {
-                child.render(ctx, dt);
-            }
-            child.y = original_y;
+            const view_top = this.y + this.scroll_top;
+            const view_bottom = this.y + this.h + this.scroll_top;
+
+            const is_visible = child_bottom >= view_top && child_top <= view_bottom;
+            child.set_visible(is_visible);
+
+            content_bottom = Math.max(content_bottom, child_bottom);
         }
 
-        ctx.restore();
-
-        // render scrollbar if needed
-        if (this.max_scroll > 0) {
-            this.render_scrollbar(ctx);
-        }
+        this.content_height = content_bottom - this.y;
+        this.layout_dirty = false;
     }
 };

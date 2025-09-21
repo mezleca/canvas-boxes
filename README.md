@@ -16,7 +16,7 @@ very basic canvas ui thing
 const ui = new UI(canvas);
 
 // create a new layout to store items (aka container)
-const layout = new Layout(width, height);
+const layout = new DefaultLayout(width, height);
 
 // basic widget
 const text = new TextWidget("mhm");
