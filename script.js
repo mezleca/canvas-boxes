@@ -90,7 +90,7 @@ for (let i = 0; i < 150; i++) {
 }
 
 // add x texts
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 0; i++) {
     const new_text = new TextWidget("text " + i);
     new_text.font_size = 24;
     layout.add(new_text);
@@ -117,7 +117,7 @@ const add_button = (text, click) => {
 };
 
 // add x buttons
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 0; i++) {
     add_button(`hello ${i}`);
 }
 
