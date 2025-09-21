@@ -48,7 +48,7 @@ layout.set_padding(10);
 layout.set_border(3, "rgba(70, 70, 70, 1)");
 layout.border_radius = 5;
 
-layout.x = 50;
+layout.x = 100;
 layout.y = 50;
 
 // layout.add(other_layout);

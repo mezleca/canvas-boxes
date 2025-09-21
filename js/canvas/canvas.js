@@ -136,9 +136,9 @@ export class Node extends StyleData {
                 const old_scroll = this.scroll_top;
 
                 if (cursor.delta_y > 0) {
-                    this.scroll_top = Math.min(this.scroll_top + 10, this.max_scroll);
+                    this.scroll_top = Math.min(this.scroll_top + Math.abs(cursor.delta_y), this.max_scroll);
                 } else if (cursor.delta_y < 0) {
-                    this.scroll_top = Math.max(this.scroll_top - 10, 0);
+                    this.scroll_top = Math.max(this.scroll_top - Math.abs(cursor.delta_y), 0);
                 }
 
                 if (old_scroll != this.scroll_top) {
