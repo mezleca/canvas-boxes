@@ -5,11 +5,6 @@ very basic canvas ui thing
   <img src="https://github.com/mezleca/canvas-ui/blob/main/static/showcase.png">
 </p>
 
-## TODO (if i finish the todo list inside script.js)
-- [ ] webgl renderer
-- [ ] flex layout
-- [ ] element state transitions (hover, click... something decided by the user)
-
 ## usage
 ```js
 // create canvas ui and layout (container)
