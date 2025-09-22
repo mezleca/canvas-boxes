@@ -13,7 +13,6 @@ export class TextWidget extends Node {
     calculate(ctx) {
         ctx.save();
         const style = this.get_style();
-        console.log("calc:", style.font_size);
         const metrics = get_text_metrics(ctx, this.text, style.text_align, style.text_baseline, `${style.font_size}px ${style.font}`);
         this.w = metrics.width;
         this.h = metrics.height;
@@ -28,8 +27,6 @@ export class TextWidget extends Node {
         const style = this.get_style();
 
         ctx.save();
-
-        console.log("reder:", style.font_size);
 
         // render text
         render_text(
