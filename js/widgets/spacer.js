@@ -47,6 +47,8 @@ export class Spacer extends Node {
                 break;
             }
         }
+
+        this.is_dirty = false;
     }
 
     render(ctx) { }

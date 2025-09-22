@@ -20,7 +20,7 @@ export class Node {
         this.max_scroll = 0;
         this.content_height = 0;
         this.is_ghost = false; // element that takes up space but will not  be rendered (spacer)
-        this.layout_dirty = false;
+        this.is_dirty = true; // needs to be calculated somewhere
         this.holding_scrollbar = false;
         this.style = new NodeStyle();
 
@@ -43,12 +43,19 @@ export class Node {
     }
 
     update_style_state(is_hovered, is_active) {
+        let new_state = "default"; 
+
         if (is_active) {
-            this.style.set_current_state("active");
+            new_state = "active";
         } else if (is_hovered) {
-            this.style.set_current_state("hover");
+            new_state = "hover";
         } else {
-            this.style.set_current_state("default");
+            new_state = "default";
+        }
+
+        if (new_state != this.style.current_state) {
+            this.style.set_current_state(new_state);
+            this.is_dirty = true;
         }
     }
 
@@ -261,7 +268,7 @@ export class Node {
         }
 
         if (scroll_updated) {
-            this.layout_dirty = true;
+            this.is_dirty = true;
         }
 
         for (const child of this.children) {

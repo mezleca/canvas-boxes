@@ -10,13 +10,13 @@ export class BaseLayout extends Node {
         this.visible = true;
         this.w = w;
         this.h = h;
-        this.layout_dirty = true;
+        this.is_dirty = true;
         this.has_overflow = true;
     }
 
     add(child) {
         child.parent = this;
-        this.layout_dirty = true;
+        this.is_dirty = true;
         this.children.push(child);
     }
 
@@ -26,7 +26,7 @@ export class BaseLayout extends Node {
 
     remove(id) {
         this.children = this.children.filter((c) => c.id != id);
-        this.layout_dirty = true;
+        this.is_dirty = true;
     }
 
     draw(ctx) {
@@ -34,7 +34,9 @@ export class BaseLayout extends Node {
         render_box(ctx, this.x, this.y, this.w, this.h, style.border_color, style.background_color, style.border_size, style.border_radius, true);
     }
 
-    calculate(ctx) { }
+    calculate(ctx) { 
+        this.is_dirty = false;
+    }
 
     render(ctx, dt) {
         if (!this.visible) {
@@ -84,11 +86,11 @@ export class DefaultLayout extends BaseLayout {
     set_auto_resize(width = false, height = false) {
         this.auto_resize_width = width;
         this.auto_resize_height = height;
-        this.layout_dirty = true;
+        this.is_dirty = true;
     }
 
     calculate(ctx) {
-        if (!this.layout_dirty && !this.auto_resize_height && !this.auto_resize_width) {
+        if (!this.is_dirty && !this.auto_resize_height && !this.auto_resize_width) {
             this.update_visibility();
             this.max_scroll = Math.max(0, this.content_height - this.h);
             return;
@@ -106,58 +108,56 @@ export class DefaultLayout extends BaseLayout {
         const max_expandable_width = parent_bounds.w - this.x;
         const max_expandable_height = parent_bounds.h - this.y;
 
-        if (this.layout_dirty) {
-            let current_x = l_pl;
-            let current_y = l_pt;
-            let row_height = 0;
-            let content_height = l_pt;
-            let available_right = this.w - l_pr;
+        let current_x = l_pl;
+        let current_y = l_pt;
+        let row_height = 0;
+        let content_height = l_pt;
+        let available_right = this.w - l_pr;
 
-            for (const child of this.children) {
-                // calculate position if possible
-                if (child.calculate) child.calculate(ctx);
+        for (const child of this.children) {
+            // calculate position if possible
+            if (child.is_dirty && child.calculate) child.calculate(ctx);
 
-                const child_total_width = child.w;
-                const child_total_height = child.h;
+            const child_total_width = child.w;
+            const child_total_height = child.h;
 
-                // check if we need to resize width
-                if (this.auto_resize_width && current_x + child_total_width > available_right) {
-                    const needed_width = current_x + child_total_width + l_pr;
-            
-                    if (needed_width <= max_expandable_width) {
-                        this.w = needed_width;
-                        available_right = this.w - l_pr;
-                    }
+            // check if we need to resize width
+            if (this.auto_resize_width && current_x + child_total_width > available_right) {
+                const needed_width = current_x + child_total_width + l_pr;
+        
+                if (needed_width <= max_expandable_width) {
+                    this.w = needed_width;
+                    available_right = this.w - l_pr;
                 }
-
-                // check if needs new row
-                if (current_x + child_total_width > available_right && current_x > l_pl) {
-                    current_x = l_pl;
-                    current_y += row_height + style.spacing;
-                    row_height = 0;
-                }
-
-                // update item position
-                const target_x = this.x + current_x;
-                const target_y = this.y + current_y;
-
-                child.update_pos(target_x, target_y);
-
-                // update position for next item
-                current_x += child_total_width;
-
-                // dont add spacing for ghost elements
-                if (!child.is_ghost) {
-                    current_x += style.spacing;
-                }
-
-                row_height = Math.max(row_height, child_total_height);
-                content_height = Math.max(content_height, current_y + child_total_height);
             }
 
-            this.content_height = content_height + l_pb;
-            this.layout_dirty = false;
+            // check if needs new row
+            if (current_x + child_total_width > available_right && current_x > l_pl) {
+                current_x = l_pl;
+                current_y += row_height + style.spacing;
+                row_height = 0;
+            }
+
+            // update item position
+            const target_x = this.x + current_x;
+            const target_y = this.y + current_y;
+
+            child.update_pos(target_x, target_y);
+
+            // update position for next item
+            current_x += child_total_width;
+
+            // dont add spacing for ghost elements
+            if (!child.is_ghost) {
+                current_x += style.spacing;
+            }
+
+            row_height = Math.max(row_height, child_total_height);
+            content_height = Math.max(content_height, current_y + child_total_height);
         }
+
+        this.content_height = content_height + l_pb;
+        this.is_dirty = false;
 
         // check if we need to resize height
         if (this.auto_resize_height) {
@@ -190,24 +190,22 @@ export class FreeLayout extends BaseLayout {
     }
 
     calculate(ctx) {
-        if (this.layout_dirty) {
-            let content_bottom = this.y;
+        let content_bottom = this.y;
 
-            for (const child of this.children) {
-                // calculate position if possible
-                if (child.calculate) child.calculate(ctx);
+        for (const child of this.children) {
+            // calculate position if possible
+            if (child.is_dirty && child.calculate) child.calculate(ctx);
 
-                // fallback to layout position
-                if (child.x == 0) child.x = this.x;
-                if (child.y == 0) child.y = this.y;
+            // fallback to layout position
+            if (child.x == 0) child.x = this.x;
+            if (child.y == 0) child.y = this.y;
 
-                const child_bottom = child.y + child.h;
-                content_bottom = Math.max(content_bottom, child_bottom);
-            }
-
-            this.content_height = content_bottom - this.y;
-            this.layout_dirty = false;
+            const child_bottom = child.y + child.h;
+            content_bottom = Math.max(content_bottom, child_bottom);
         }
+
+        this.content_height = content_bottom - this.y;
+        this.is_dirty = false;
 
         // update visibility
         const view_top = this.y + this.scroll_top;

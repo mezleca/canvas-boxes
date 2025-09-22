@@ -35,6 +35,8 @@ export class ButtonWidget extends Node {
 
         this.w = pads_w + desired_text_w;
         this.h = pads_h + desired_text_h;
+
+        this.is_dirty = false;
     }
 
     render(ctx) {
@@ -53,8 +55,7 @@ export class ButtonWidget extends Node {
             this.x + this.w / 2,
             this.y + this.h / 2,
             this.text,
-            style.font,
-            style.font_size,
+            `${style.font_size}px ${style.font}`,
             style.font_color,
             style.text_align,
             style.text_baseline,

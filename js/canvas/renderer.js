@@ -37,21 +37,20 @@ export const render_image = (ctx, image, x, y, w, h, r) => {
 
 /** @param {CanvasRenderingContext2D} ctx */
 export const get_text_metrics = (ctx, text, align, baseline, font) => {
-    ctx.font = font;
-    ctx.textAlign = align;
-    ctx.textBaseline = baseline;
+    if (font) ctx.font = font;
+    if (align) ctx.textAlign = align;
+    if (baseline) ctx.textBaseline = baseline;
     const metrics = ctx.measureText(text);
-    const text_width = metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight;
-    const text_height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
-    return { ...metrics, width: text_width, height: text_height };
+    metrics.height = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+    return metrics;
 };
 
 /** @param {CanvasRenderingContext2D} ctx */
-export const render_text = (ctx, x, y, text, font = "Arial", size = 16, color = "rgb(255, 255, 255)", align, baseline) => {
-    ctx.font = `${size}px ${font}`;
-    ctx.fillStyle = color;
-    ctx.textAlign = align;
-    ctx.textBaseline = baseline;
+export const render_text = (ctx, x, y, text, font, color, align, baseline) => {
+    if (font) ctx.font = font;
+    if (color && color != "") ctx.fillStyle = color;
+    if (align) ctx.textAlign = align;
+    if (baseline) ctx.textBaseline = baseline;
     
     ctx.fillText(text, x, y);
 };

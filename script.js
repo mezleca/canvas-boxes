@@ -1,11 +1,8 @@
 import { UI } from "./js/canvas/canvas.js";
-import { DefaultLayout, FreeLayout } from "./js/widgets/layout.js";
+import { DefaultLayout } from "./js/widgets/layout.js";
 import { render_text } from "./js/canvas/renderer.js";
-import { BoxWidget } from "./js/widgets/box.js";
 import { ButtonWidget } from "./js/widgets/button.js";
-import { TextWidget } from "./js/widgets/text.js";
 import { ImageWidget } from "./js/widgets/image.js";
-import { Spacer } from "./js/widgets/spacer.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -25,7 +22,7 @@ const canvas = document.getElementById("canvas");
     - [ ] align_x (layout)
     - [ ] align_y (layout)
     - [x] box item
-    - [ ] spacer item (occupies whole row or space defined by the user)
+    - [x] spacer item
     - [x] text item
     - [x] align text
     - [x] button item
@@ -51,8 +48,6 @@ const setup = () => {
     // custom layout position
     layout.x = 100;
     layout.y = 50;
-
-    // layout.add(new Spacer("100%"));
 
     const button = new ButtonWidget("add cat");
 

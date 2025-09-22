@@ -7,16 +7,19 @@ export class TextWidget extends Node {
         if (text != "") this.text = text;
         
         // set default text style
-        this.style.set_font("Arial", "20", "white");
+        this.style.set_font("Arial", 20, "white");
     }
 
     calculate(ctx) {
         ctx.save();
         const style = this.get_style();
-        const metrics = get_text_metrics(ctx, this.text, style.text_baseline, style.text_align, `${style.font_size}px ${style.font}`);
+        console.log("calc:", style.font_size);
+        const metrics = get_text_metrics(ctx, this.text, style.text_align, style.text_baseline, `${style.font_size}px ${style.font}`);
         this.w = metrics.width;
         this.h = metrics.height;
         ctx.restore();
+
+        this.is_dirty = false;
     }
 
     render(ctx) {
@@ -26,14 +29,15 @@ export class TextWidget extends Node {
 
         ctx.save();
 
+        console.log("reder:", style.font_size);
+
         // render text
         render_text(
             ctx, 
             this.x, 
             this.y + this.h, 
-            this.text, 
-            style.font, 
-            style.font_size, 
+            this.text,
+            `${style.font_size}px ${style.font}`,
             style.font_color, 
             style.text_align, 
             style.text_baseline
@@ -41,7 +45,7 @@ export class TextWidget extends Node {
 
         // render border
         if (style.border_size && style.border_color != "") {
-            render_box(ctx, this.x, this.y, this.w, style.font_size, style.border_color, null, style.border_size);
+            render_box(ctx, this.x, this.y, this.w, this.h, style.border_color, null, style.border_color, style.border_radius);
         }
 
         ctx.restore();
