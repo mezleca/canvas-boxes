@@ -5,6 +5,7 @@ import { BoxWidget } from "./js/widgets/box.js";
 import { ButtonWidget } from "./js/widgets/button.js";
 import { TextWidget } from "./js/widgets/text.js";
 import { ImageWidget } from "./js/widgets/image.js";
+import { Spacer } from "./js/widgets/spacer.js";
 
 const canvas = document.getElementById("canvas");
 
@@ -28,7 +29,7 @@ const canvas = document.getElementById("canvas");
     - [x] text item
     - [x] align text
     - [x] button item
-    - [ ] image item
+    - [x] image item
     - [ ] checkbox item
 */
 
@@ -50,6 +51,8 @@ const setup = () => {
     // custom layout position
     layout.x = 100;
     layout.y = 50;
+
+    // layout.add(new Spacer("100%"));
 
     const button = new ButtonWidget("add cat");
 

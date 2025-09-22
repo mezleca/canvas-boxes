@@ -35,8 +35,6 @@ export class ButtonWidget extends Node {
 
         this.w = pads_w + desired_text_w;
         this.h = pads_h + desired_text_h;
-
-        console.log(this.w, this.h, pads_w, pads_h, desired_text_w, desired_text_h);
     }
 
     render(ctx) {

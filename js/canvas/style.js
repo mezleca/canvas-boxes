@@ -160,6 +160,7 @@ export class NodeStyle {
         this._apply_to_states({ scrollbar_background_color: value }, states);
     }
 
+    // top, right, bottom, left
     set_padding(...values) {
         const padding = values.length == 1 
             ? [values[0], values[0], values[0], values[0]]

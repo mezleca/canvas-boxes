@@ -1,7 +1,6 @@
 import { Node } from "../canvas/canvas.js";
 import { PADDING_POSITIONS } from "../canvas/style.js";
 import { render_box } from "../canvas/renderer.js";
-import { screen } from "../events/dom.js";
 
 // base: here you will find all of the functions related to (draw bg, add child, update recursive items, etc...) but no calculation is done here
 export class BaseLayout extends Node {
@@ -88,15 +87,6 @@ export class DefaultLayout extends BaseLayout {
         this.layout_dirty = true;
     }
 
-    get_parent_bounds() {
-        if (this.parent && this.parent.w && this.parent.h) {
-            return { w: this.parent.w, h: this.parent.h };
-        }
-        
-        // fallback to screen
-        return { w: screen.w, h: screen.h };
-    }
-
     calculate(ctx) {
         if (!this.layout_dirty && !this.auto_resize_height && !this.auto_resize_width) {
             this.update_visibility();
@@ -154,7 +144,13 @@ export class DefaultLayout extends BaseLayout {
                 child.update_pos(target_x, target_y);
 
                 // update position for next item
-                current_x += child_total_width + style.spacing;
+                current_x += child_total_width;
+
+                // dont add spacing for ghost elements
+                if (!child.is_ghost) {
+                    current_x += style.spacing;
+                }
+
                 row_height = Math.max(row_height, child_total_height);
                 content_height = Math.max(content_height, current_y + child_total_height);
             }

@@ -1,5 +1,5 @@
 import { NodeStyle, StyleState } from "./style.js";
-import { cursor, update_viewport, keys } from "../events/dom.js";
+import { cursor, update_viewport, keys, screen } from "../events/dom.js";
 import { render_box } from "./renderer.js";
 
 export class Node {
@@ -19,6 +19,7 @@ export class Node {
         this.scroll_top = 0;
         this.max_scroll = 0;
         this.content_height = 0;
+        this.is_ghost = false; // element that takes up space but will not  be rendered (spacer)
         this.layout_dirty = false;
         this.holding_scrollbar = false;
         this.style = new NodeStyle();
@@ -92,6 +93,15 @@ export class Node {
 
     is_hovered() {
         return this._is_hovered(this.x, this.y, this.w, this.h);
+    }
+
+    get_parent_bounds() {
+        if (this.parent && this.parent.w && this.parent.h) {
+            return { w: this.parent.w, h: this.parent.h };
+        }
+        
+        // fallback to screen
+        return { w: screen.w, h: screen.h };
     }
 
     update() {
