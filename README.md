@@ -49,8 +49,8 @@ class CustomWidget extends Node {
     constructor() {
         super();
         
-        // add default style to widget (check styles.js for all possible values)
-        this.background_color = "rgb(120, 120, 120)";
+        // add background color for all states (default, hover, active)
+        this.style.set_background_color("rgba(120, 120, 120, 1)");
         ...
     }
 
@@ -67,7 +67,9 @@ class CustomWidget extends Node {
 
     // draw stuff here
     render(ctx) {
+        ctx.save();
         render_box(ctx, this.x, this.y, this.w, this.h, ...);
+        ctx.restore();
     }
 };
 
