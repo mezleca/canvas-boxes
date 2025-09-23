@@ -34,7 +34,7 @@ export class StyleState {
 };
 
 export class NodeStyle {
-    constructor() {
+    constructor(element) {
         this.states = {
             default: new StyleState(),
             hover: new StyleState(),
@@ -42,6 +42,11 @@ export class NodeStyle {
             disabled: new StyleState()
         };
         this.current_state = "default";
+        this.element = element;
+    }
+
+    done() {
+        return this.element;
     }
 
     get_current() {
@@ -52,6 +57,11 @@ export class NodeStyle {
         if (this.states[state_name]) {
             this.current_state = state_name;
         }
+        return this;
+    }
+
+    get current() {
+        return this.get_current();
     }
 
     _apply_to_states(properties, states = null) {
@@ -89,98 +99,139 @@ export class NodeStyle {
             }
         }
     }
+    
+    get text_align_value() { return this.get_current().text_align; }
+    get text_baseline_value() { return this.get_current().text_baseline; }
+    get font_value() { return this.get_current().font; }
+    get font_size_value() { return this.get_current().font_size; }
+    get font_color_value() { return this.get_current().font_color; }
+    get spacing_value() { return this.get_current().spacing; }
+    get border_size_value() { return this.get_current().border_size; }
+    get border_color_value() { return this.get_current().border_color; }
+    get border_radius_value() { return this.get_current().border_radius; }
+    get background_color_value() { return this.get_current().background_color; }
+    get scrollbar_width_value() { return this.get_current().scrollbar_width; }
+    get scrollbar_height_value() { return this.get_current().scrollbar_height; }
+    get scrollbar_color_value() { return this.get_current().scrollbar_color; }
+    get scrollbar_background_color_value() { return this.get_current().scrollbar_background_color; }
+    get padding_value() { return this.get_current().padding; }
+    get rotate_value() { return this.get_current().rotate; }
 
-    set_text_align(value, states = null) {
+    text_align(value, states = null) {
         this._apply_to_states({ text_align: value }, states);
+        return this;
     }
 
-    set_text_baseline(value, states = null) {
+    text_baseline(value, states = null) {
         this._apply_to_states({ text_baseline: value }, states);
+        return this;
     }
 
-    set_font(font, size = null, color = null, states = null) {
+    font(font, size = null, color = null, states = null) {
         const props = { font };
         if (size != null) props.font_size = size;
         if (color != null) props.font_color = color;
         this._apply_to_states(props, states);
+        return this;
     }
 
-    set_font_size(value, states = null) {
+    font_size(value, states = null) {
         this._apply_to_states({ font_size: value }, states);
+        return this;
     }
 
-    set_font_color(value, states = null) {
+    font_color(value, states = null) {
         this._apply_to_states({ font_color: value }, states);
+        return this;
     }
 
-    set_spacing(value, states = null) {
+    spacing(value, states = null) {
         this._apply_to_states({ spacing: value }, states);
+        return this;
     }
 
-    set_rotate(value, states = null) {
+    rotate(value, states = null) {
         this._apply_to_states({ rotate: value }, states);
+        return this;
     }
 
-    set_border(size, color, states = null) {
+    border(size, color, states = null) {
         this._apply_to_states({ 
             border_size: size, 
             border_color: color 
         }, states);
+        return this;
     }
 
-    set_border_size(value, states = null) {
+    border_size(value, states = null) {
         this._apply_to_states({ border_size: value }, states);
+        return this;
     }
 
-    set_border_color(value, states = null) {
+    border_color(value, states = null) {
         this._apply_to_states({ border_color: value }, states);
+        return this;
     }
 
-    set_border_radius(value, states = null) {
+    border_radius(value, states = null) {
         this._apply_to_states({ border_radius: value }, states);
+        return this;
     }
 
-    set_background_color(value, states = null) {
+    background_color(value, states = null) {
         this._apply_to_states({ background_color: value }, states);
+        return this;
     }
 
-    set_scrollbar_width(value, states = null) {
+    background(value, states = null) {
+        return this.background_color(value, states);
+    }
+
+    scrollbar_width(value, states = null) {
         this._apply_to_states({ scrollbar_width: value }, states);
+        return this;
     }
 
-    set_scrollbar_height(value, states = null) {
+    scrollbar_height(value, states = null) {
         this._apply_to_states({ scrollbar_height: value }, states);
+        return this;
     }
 
-    set_scrollbar_color(value, states = null) {
+    scrollbar_color(value, states = null) {
         this._apply_to_states({ scrollbar_color: value }, states);
+        return this;
     }
 
-    set_scrollbar_background_color(value, states = null) {
+    scrollbar_background_color(value, states = null) {
         this._apply_to_states({ scrollbar_background_color: value }, states);
+        return this;
     }
 
-    // top, right, bottom, left
-    set_padding(...values) {
+    padding(...values) {
         const padding = values.length == 1 
             ? [values[0], values[0], values[0], values[0]]
             : values;
         this._apply_to_states({ padding: [...padding] });
+        return this;
     }
 
-    set_padding_left(value, states = null) {
+    padding_left(value, states = null) {
         this._update_padding_position(PADDING_POSITIONS.LEFT, value, states);
+        return this;
     }
 
-    set_padding_right(value, states = null) {
+    padding_right(value, states = null) {
         this._update_padding_position(PADDING_POSITIONS.RIGHT, value, states);
+        return this;
     }
 
-    set_padding_top(value, states = null) {
+    padding_top(value, states = null) {
         this._update_padding_position(PADDING_POSITIONS.TOP, value, states);
+        return this;
     }
 
-    set_padding_bottom(value, states = null) {
+    padding_bottom(value, states = null) {
         this._update_padding_position(PADDING_POSITIONS.BOTTOM, value, states);
+        return this;
     }
 };

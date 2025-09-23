@@ -9,18 +9,18 @@ export class ButtonWidget extends Node {
         this.h = h || 0;
         this.text = text;
 
-        // style for all states
-        this.style.set_background_color("rgba(58, 58, 58, 1)");
-        this.style.set_font("Arial", 20, "rgb(220, 220, 220)");
-        this.style.set_border(2);
-        this.style.set_text_align("center");
-        this.style.set_text_baseline("middle");
+        // set style
+        this.style.background_color("rgba(58, 58, 58, 1)");
+        this.style.font("Arial", 20, "rgb(220, 220, 220)");
+        this.style.border(2);
+        this.style.text_align("center");
+        this.style.text_baseline("middle");
 
         // style for hover
-        this.style.set_background_color("rgba(83, 83, 83, 1)", "hover");
+        this.style.background_color("rgba(83, 83, 83, 1)", "hover");
 
         // style for active
-        this.style.set_border_color("rgba(255, 255, 255)", "active");
+        this.style.border_color("rgba(255, 255, 255)", "active");
     }
 
     calculate(ctx) {

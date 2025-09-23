@@ -9,32 +9,40 @@ very basic canvas ui thing
 ```js
 // create canvas ui and layout (container)
 const ui = new UI(canvas);
-const layout = new DefaultLayout(800, 400);
-
-// set layout style
-layout.style.set_background_color("rgb(30, 30, 30)");
-layout.style.set_border(2, "white"); // border size, color
-layout.style.set_padding(10); // top, right, bottom, left
-
+const layout = new DefaultLayout(800, 400).style
+    .background_color("rgb(20, 20, 20)")
+    .padding(10)
+    .border(3, "rgba(120, 120, 120, 1)")
+    .border_radius(4)
+    .spacing(20).done(); // go back to widget
+    
 // extra layout options
-layout.set_auto_resize(false, true); // width, height
-layout.x = 100;
+layout.set_auto_resize(false, true); // w, h
+
+// custom layout position
+layout.x = 50;
 layout.y = 50;
 
-// basic widget
-const text = new TextWidget("hello im a text");
+// create button
+const button = new ButtonWidget("add cat").style
+    .font("Arial", 20, "white")
+    .border_radius(4)
+    .padding(15, 25, 15, 25)
+    .border_color("rgb(120, 120, 120)", "hover")
+    .background_color("rgb(50, 50, 50)") // default bg color
+    .background_color("rgb(120, 120, 120)", "hover") // hover bg color
+    .done() // go back to widget
+    .on_click(() => { // add cat on click
+        const new_cat = create_cat(() => {
+            layout.remove(new_cat.id);
+        });
+        layout.add(new_cat);
+    })
 
-// show border around text
-text.style.set_border(5, "red");
+layout.add(button);
 
-// set text style (all states)
-text.style.set_font("Arial", 20, "white"); // font name, size (px), color (rgb or name)
-
-// set text style (hover state)
-text.style.set_font("Sans Serif", 20, "red", "hover"); // font name, size (px), color (rgb or name), state (default, hover, active, ...)
-
-// add widget to layout 
-layout.add(text);
+// add to root
+ui.add(layout);
 
 // add to root
 ui.add(layout);

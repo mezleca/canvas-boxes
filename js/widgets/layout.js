@@ -14,12 +14,6 @@ export class BaseLayout extends Node {
         this.has_overflow = true;
     }
 
-    add(child) {
-        child.parent = this;
-        this.is_dirty = true;
-        this.children.push(child);
-    }
-
     set_type(type) {
         this.type = type;
     }
@@ -74,7 +68,7 @@ export class DefaultLayout extends BaseLayout {
         super(w || 0, h || 0);
 
         // default style for all states
-        this.style.set_spacing(10);
+        this.style.spacing(10);
 
         // resize options
         this.auto_resize_width = false;

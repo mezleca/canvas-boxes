@@ -33,41 +33,36 @@ const canvas = document.getElementById("canvas");
 const ui = new UI(canvas);
 
 const setup = () => {
-    const layout = new DefaultLayout(800, 400);
-
-    // set layout style
-    layout.style.set_background_color("rgb(20, 20, 20)");
-    layout.style.set_padding(10);
-    layout.style.set_border(3, "rgba(120, 120, 120, 1)");
-    layout.style.set_border_radius(4);
-    layout.style.set_spacing(20);
-
+    // create layout
+    const layout = new DefaultLayout(800, 400).style
+        .background_color("rgb(20, 20, 20)")
+        .padding(10)
+        .border(3, "rgba(120, 120, 120, 1)")
+        .border_radius(4)
+        .spacing(20).done(); // go back to widget
+        
     // extra layout options
     layout.set_auto_resize(false, true); // w, h
 
     // custom layout position
-    layout.x = 100;
+    layout.x = 50;
     layout.y = 50;
 
-    const button = new ButtonWidget("add cat");
-
-    // set button style
-    button.style.set_font("Arial", 20, "white");
-    button.style.set_border_radius(4);
-    button.style.set_padding(15, 25, 15, 25);
-    button.style.set_background_color("rgb(50, 50, 50)");
-
-    // add hover state
-    button.style.set_border_color("rgb(120, 120, 120)", "hover");
-
-    // add cat on click
-    button.on("click", () => {
-        const new_cat = create_cat(() => {
-            console.log("removing", new_cat.id);
-            layout.remove(new_cat.id);
-        });
-        layout.add(new_cat);
-    });
+    // create button
+    const button = new ButtonWidget("add cat").style
+        .font("Arial", 20, "white")
+        .border_radius(4)
+        .padding(15, 25, 15, 25)
+        .border_color("rgb(120, 120, 120)", "hover")
+        .background_color("rgb(50, 50, 50)") // default bg color
+        .background_color("rgb(120, 120, 120)", "hover") // hover bg color
+        .done() // go back to widget
+        .on_click(() => { // add cat on click
+            const new_cat = create_cat(() => {
+                layout.remove(new_cat.id);
+            });
+            layout.add(new_cat);
+        })
 
     layout.add(button);
 
@@ -94,7 +89,7 @@ setup();
 const update = (currentTime) => {
     ui.render(currentTime);
 
-    render_text(ui.ctx, 10, screen.height / 2, "fps: " + ui.fps, "Arial", 20, "white");
+    // render_text(ui.ctx, 10, screen.height / 2, "fps: " + ui.fps, "Arial", 20, "white");
     requestAnimationFrame(update);
 };
 

@@ -22,7 +22,7 @@ export class Node {
         this.is_ghost = false; // element that takes up space but will not  be rendered (spacer)
         this.is_dirty = true; // needs to be calculated somewhere
         this.holding_scrollbar = false;
-        this.style = new NodeStyle();
+        this.style = new NodeStyle(this);
 
         // scrollbar default
         this.scrollbar_width = 12;
@@ -34,7 +34,9 @@ export class Node {
 
     add(child) {
         child.parent = this;
+        this.is_dirty = true;
         this.children.push(child);
+        return this;
     }
 
     /** @returns {StyleState} */
@@ -42,7 +44,7 @@ export class Node {
         return this.style.get_current();
     }
 
-    update_style_state(is_hovered, is_active) {
+    _update_style_state(is_hovered, is_active) {
         let new_state = "default"; 
 
         if (is_active) {
@@ -116,7 +118,7 @@ export class Node {
         const has_m1_pressed = keys.has("mouse1");
 
         // updat style state
-        this.update_style_state(is_hovered, has_m1_pressed && this.holding);
+        this._update_style_state(is_hovered, has_m1_pressed && this.holding);
 
         // update hovered state
         if (is_hovered && !this.hovering) {
@@ -287,18 +289,39 @@ export class Node {
 
     on(event_name, callback) {
         this.events.set(event_name, callback);
+        return this;
+    }
+
+    on_click(cb) {
+        if (cb) this.events.set("click", cb);
+        return this;
+    }
+
+    on_hover(cb) {
+        if (cb) this.events.set("mouseover", cb);
+        return this;
+    }
+
+    on_mouseleave(cb) {
+        if (cb) this.events.set("mouseleave", cb);
+        return this;
     }
 
     set_id(id) {
-        this.id = id;
+        if(id && id != "") this.id = id;
+        return this;
     }
 
     set_visible(value) {
         this.visible = value;
+        return this;
     }
 
     set_text(value) {
         this.text = value;
+        // force render
+        this.is_dirty = true;
+        return this;
     }
 };
 
