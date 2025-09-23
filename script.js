@@ -10,9 +10,9 @@ const ui = new UI(canvas);
 const setup = () => {
     // create layout
     const layout = new DefaultLayout(800, 400).style
-        .background_color("rgb(20, 20, 20)")
+        .background_color({ r: 20, g: 20, b: 20 })
         .padding(10)
-        .border(3, "rgba(120, 120, 120, 1)")
+        .border(3, { r: 120, g: 120, b: 120 })
         .border_radius(4)
         .spacing(20).done(); // go back to widget
         
@@ -28,9 +28,7 @@ const setup = () => {
         .font("Arial", 20, "white")
         .border_radius(4)
         .padding(15, 25, 15, 25)
-        .border_color("rgb(120, 120, 120)", "hover")
-        .background_color("rgb(50, 50, 50)") // default bg color
-        .background_color("rgb(120, 120, 120)", "hover") // hover bg color
+        .border_color({ r: 120, g: 120, b: 120 }, "hover")
         .vertical_justify("center")
         .done() // go back to widget
         .on_click(() => { // add cat on click

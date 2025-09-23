@@ -5,24 +5,32 @@ export const PADDING_POSITIONS = {
     "LEFT": 3
 };
 
+const DEFAULT_COLOR_OBJECT = { r: 255, g: 255, b: 255, a: 255 };
+
 export class StyleState {
     constructor() {
+        // text
         this.text_align = "left";
         this.text_baseline = "alphabetic";
         this.font = "Arial";
         this.font_size = 12;
-        this.font_color = "rgb(255,255,255)";
+        this.font_color = DEFAULT_COLOR_OBJECT;
+
+        // layout related
         this.spacing = 10;
-        this.border_size = 1;
-        this.border_radius = 0;
-        this.border_color = "";
-        this.background_color = "";
-        this.scrollbar_width = 12;
-        this.scrollbar_height = 24;
-        this.scrollbar_color = "rgba(187, 187, 187, 0.8)";
-        this.scrollbar_background_color = "rgb(120, 120, 120, 0.3)";
         this.horizontal_justify = "left";
         this.vertical_justify = "top";
+
+        this.border_size = 1;
+        this.border_radius = 0;
+        this.border_color = { r: 120, g: 120, b: 120, a: 120 };
+        this.background_color = DEFAULT_COLOR_OBJECT;
+
+        // scrollbar
+        this.scrollbar_width = 12;
+        this.scrollbar_thumb_width = 12;
+        this.scrollbar_background_color = { r: 0, g: 0, b: 0, a: 0 };
+        this.scrollbar_thumb_color = { r: 160, g: 160, b: 160, a: 120 };
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
         this.rotate = 0;
     }
@@ -116,9 +124,11 @@ export class NodeStyle {
     get border_radius_value() { return this.get_current().border_radius; }
     get background_color_value() { return this.get_current().background_color; }
     get scrollbar_width_value() { return this.get_current().scrollbar_width; }
+    get scrollbar_thumb_width_value() { return this.get_current().scrollbar_thumb_width; }
     get scrollbar_height_value() { return this.get_current().scrollbar_height; }
     get scrollbar_color_value() { return this.get_current().scrollbar_color; }
     get scrollbar_background_color_value() { return this.get_current().scrollbar_background_color; }
+    get scrollbar_thumb_color_value() { return this.get_current().scrollbar_thumb_color; }
     get padding_value() { return this.get_current().padding; }
     get rotate_value() { return this.get_current().rotate; }
     get horizontal_justify_value() { return this.get_current().horizontal_justify; }
@@ -134,10 +144,11 @@ export class NodeStyle {
         return this;
     }
 
-    font(font, size = null, color = null, states = null) {
+    /** @param {DEFAULT_COLOR_OBJECT} color */
+    font(font, size = null, color, states = null) {
         const props = { font };
         if (size != null) props.font_size = size;
-        if (color != null) props.font_color = color;
+        if (color != null) props.font_color = { ...DEFAULT_COLOR_OBJECT, ...color };
         this._apply_to_states(props, states);
         return this;
     }
@@ -147,8 +158,9 @@ export class NodeStyle {
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     font_color(value, states = null) {
-        this._apply_to_states({ font_color: value }, states);
+        this._apply_to_states({ font_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
 
@@ -162,10 +174,11 @@ export class NodeStyle {
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} color */
     border(size, color, states = null) {
         this._apply_to_states({ 
             border_size: size, 
-            border_color: color 
+            border_color: { ...DEFAULT_COLOR_OBJECT, ...color }
         }, states);
         return this;
     }
@@ -175,8 +188,10 @@ export class NodeStyle {
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     border_color(value, states = null) {
-        this._apply_to_states({ border_color: value }, states);
+        console.log("setting border", value, states);
+        this._apply_to_states({ border_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
 
@@ -185,11 +200,13 @@ export class NodeStyle {
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     background_color(value, states = null) {
-        this._apply_to_states({ background_color: value }, states);
+        this._apply_to_states({ background_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     background(value, states = null) {
         return this.background_color(value, states);
     }
@@ -199,18 +216,30 @@ export class NodeStyle {
         return this;
     }
 
+    scrollbar_thumb_width(value, states = null) {
+        this._apply_to_states({ scrollbar_thumb_width: value }, states);
+        return this;
+    }
+
     scrollbar_height(value, states = null) {
         this._apply_to_states({ scrollbar_height: value }, states);
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     scrollbar_color(value, states = null) {
-        this._apply_to_states({ scrollbar_color: value }, states);
+        this._apply_to_states({ scrollbar_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
 
+    /** @param {DEFAULT_COLOR_OBJECT} value */
     scrollbar_background_color(value, states = null) {
-        this._apply_to_states({ scrollbar_background_color: value }, states);
+        this._apply_to_states({ scrollbar_background_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
+        return this;
+    }
+
+    scrollbar_thumb_color(value, states = null) {
+        this._apply_to_states({ scrollbar_thumb_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
 

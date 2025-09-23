@@ -18,12 +18,12 @@ export const render_box = (ctx, x, y, w, h, color, fill_color, border_size = 1, 
     draw_rect(ctx, x, y, w, h, radius);
 
     if (fill_color) {
-        ctx.fillStyle = fill_color;
+        ctx.fillStyle = `rgb(${fill_color.r}, ${fill_color.g}, ${fill_color.b}, ${fill_color.a / 255})`;
         ctx.fill();
     }
 
     if (color) {
-        ctx.strokeStyle = color;
+        ctx.strokeStyle = `rgb(${color.r}, ${color.g}, ${color.b}, ${color.a / 255})`;
         ctx.stroke();
     }
 };
@@ -48,7 +48,7 @@ export const get_text_metrics = (ctx, text, align, baseline, font) => {
 /** @param {CanvasRenderingContext2D} ctx */
 export const render_text = (ctx, x, y, text, font, color, align, baseline) => {
     if (font) ctx.font = font;
-    if (color && color != "") ctx.fillStyle = color;
+    if (color) ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b}, ${color.a / 255})`;
     if (align) ctx.textAlign = align;
     if (baseline) ctx.textBaseline = baseline;
     

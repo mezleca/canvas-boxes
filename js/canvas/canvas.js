@@ -23,13 +23,6 @@ export class Node {
         this.is_dirty = true; // needs to be calculated somewhere
         this.holding_scrollbar = false;
         this.style = new NodeStyle(this);
-
-        // scrollbar default
-        this.scrollbar_width = 12;
-        this.scrollbar_thumb_width = 12;
-        this.scrollbar_background_width = 12;
-        this.scrollbar_background_color = "rgb(0, 0, 0, 0)";
-        this.scrollbar_thumb_color = "rgb(160, 160, 160, 0.7)";
     }
 
     add(child) {
@@ -165,6 +158,7 @@ export class Node {
     }
 
     handle_scroll() {
+        const style = this.get_style();
         this.max_scroll = Math.max(0, this.content_height - this.h);
         let updated = false;
 
@@ -189,11 +183,11 @@ export class Node {
             }
 
             // drag
-            const scrollbar_x = this.x + this.w - this.scrollbar_width;
+            const scrollbar_x = this.x + this.w - style.scrollbar_width;
             const is_holding = keys.has("mouse1");
 
             // @TODO: naming
-            const should_enable_thumb_move = this._is_hovered(scrollbar_x, this.y, this.scrollbar_width, this.h) &&
+            const should_enable_thumb_move = this._is_hovered(scrollbar_x, this.y, style.scrollbar_width, this.h) &&
                 is_holding;
 
             // enable drag mode for scrollbar
@@ -233,10 +227,10 @@ export class Node {
         render_box(ctx,
             scrollbar_x,
             this.y,
-            this.scrollbar_background_width,
+            style.scrollbar_width,
             this.h,
             null,
-            this.scrollbar_background_color,
+            style.scrollbar_background_color,
             null,
             0
         );
@@ -252,10 +246,10 @@ export class Node {
         render_box(ctx,
             scrollbar_x,
             thumb_y,
-            this.scrollbar_thumb_width,
+            style.scrollbar_thumb_width,
             thumb_height,
             null,
-            this.scrollbar_thumb_color,
+            style.scrollbar_thumb_color,
             null,
             style.border_radius
         );
