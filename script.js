@@ -5,31 +5,6 @@ import { ButtonWidget } from "./js/widgets/button.js";
 import { ImageWidget } from "./js/widgets/image.js";
 
 const canvas = document.getElementById("canvas");
-
-/*  TODO LIST
-    - [x] layout/container
-    - [x] node system
-    - [x] render items on default layout mode
-    - [x] render next layout close to parent (rn is defaulting to 0,0)
-    - [x] node scroll system
-    - [x] basic scroll style
-    - [x] dynamic scrollbar thumb height (the bigger the content the smaller it gets)
-    - [x] render items on free layout mode
-    - [x] mouseup / mousedown events
-    - [x] mouseover / mouseleave events
-    - [x] click event
-    - [x] padding for container / items
-    - [ ] align_x (layout)
-    - [ ] align_y (layout)
-    - [x] box item
-    - [x] spacer item
-    - [x] text item
-    - [x] align text
-    - [x] button item
-    - [x] image item
-    - [ ] checkbox item
-*/
-
 const ui = new UI(canvas);
 
 const setup = () => {
@@ -56,6 +31,7 @@ const setup = () => {
         .border_color("rgb(120, 120, 120)", "hover")
         .background_color("rgb(50, 50, 50)") // default bg color
         .background_color("rgb(120, 120, 120)", "hover") // hover bg color
+        .vertical_justify("center")
         .done() // go back to widget
         .on_click(() => { // add cat on click
             const new_cat = create_cat(() => {

@@ -21,6 +21,8 @@ export class StyleState {
         this.scrollbar_height = 24;
         this.scrollbar_color = "rgba(187, 187, 187, 0.8)";
         this.scrollbar_background_color = "rgb(120, 120, 120, 0.3)";
+        this.horizontal_justify = "left";
+        this.vertical_justify = "top";
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
         this.rotate = 0;
     }
@@ -46,6 +48,7 @@ export class NodeStyle {
     }
 
     done() {
+        this.element.is_dirty = true;
         return this.element;
     }
 
@@ -78,6 +81,8 @@ export class NodeStyle {
                 Object.assign(this.states[states], properties);
             }
         }
+
+        this.element.is_dirty = true;
     }
 
     _update_padding_position(position, value, states = null) {
@@ -116,6 +121,8 @@ export class NodeStyle {
     get scrollbar_background_color_value() { return this.get_current().scrollbar_background_color; }
     get padding_value() { return this.get_current().padding; }
     get rotate_value() { return this.get_current().rotate; }
+    get horizontal_justify_value() { return this.get_current().horizontal_justify; }
+    get vertical_justify_value() { return this.get_current().vertical_justify; }
 
     text_align(value, states = null) {
         this._apply_to_states({ text_align: value }, states);
@@ -204,6 +211,16 @@ export class NodeStyle {
 
     scrollbar_background_color(value, states = null) {
         this._apply_to_states({ scrollbar_background_color: value }, states);
+        return this;
+    }
+
+    horizontal_justify(value, states = null) {
+        this._apply_to_states({ horizontal_justify: value }, states);
+        return this;
+    }
+
+    vertical_justify(value, states = null) {
+        this._apply_to_states({ vertical_justify: value }, states);
         return this;
     }
 

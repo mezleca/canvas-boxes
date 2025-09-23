@@ -32,6 +32,11 @@ export class BaseLayout extends Node {
         this.is_dirty = false;
     }
 
+    get_available_width() {
+        const parent_bounds = this.get_parent_bounds();
+        return { width: parent_bounds.w - this.x, height: parent_bounds.h - this.y };
+    }
+
     render(ctx, dt) {
         if (!this.visible) {
             return;
@@ -75,6 +80,7 @@ export class DefaultLayout extends BaseLayout {
         this.auto_resize_height = false;
         this.min_width = this.w || 0;
         this.min_height = this.h || 0;
+        this.rows = [];
     }
 
     set_auto_resize(width = false, height = false) {
@@ -97,67 +103,109 @@ export class DefaultLayout extends BaseLayout {
         const l_pl = style.padding[PADDING_POSITIONS.LEFT] || 0;
         const l_pt = style.padding[PADDING_POSITIONS.TOP] || 0;
         const l_pb = style.padding[PADDING_POSITIONS.BOTTOM] || 0;
+        
+        const h_justify = style.horizontal_justify;
+        const v_justify = style.vertical_justify;
+        const spacing = style.spacing;
 
-        const parent_bounds = this.get_parent_bounds();
-        const max_expandable_width = parent_bounds.w - this.x;
-        const max_expandable_height = parent_bounds.h - this.y;
+        const available_size = this.get_available_width();
+        const inner_width = this.w - l_pl - l_pr;
+        
+        // clear previous row data
+        this.rows = [];
+        
+        let current_row = {
+            children: [],
+            width: 0,
+            height: 0,
+            y: this.y + l_pt
+        };
 
         let current_x = l_pl;
-        let current_y = l_pt;
-        let row_height = 0;
-        let content_height = l_pt;
-        let available_right = this.w - l_pr;
+        let total_height = l_pt;
 
+        // first pass: organize children into rows
         for (const child of this.children) {
-            // calculate position if possible
+            // calculate position if needed
             if (child.is_dirty && child.calculate) child.calculate(ctx);
 
-            const child_total_width = child.w;
-            const child_total_height = child.h;
+            const child_width = child.w + (child.is_ghost ? 0 : spacing);
+            const needs_new_row = current_x + child_width > inner_width && current_row.children.length > 0;
 
-            // check if we need to resize width
-            if (this.auto_resize_width && current_x + child_total_width > available_right) {
-                const needed_width = current_x + child_total_width + l_pr;
-        
-                if (needed_width <= max_expandable_width) {
-                    this.w = needed_width;
-                    available_right = this.w - l_pr;
-                }
-            }
+            if (needs_new_row) {
+                this.rows.push(current_row);
+                total_height += current_row.height + spacing;
 
-            // check if needs new row
-            if (current_x + child_total_width > available_right && current_x > l_pl) {
+                // start new row
+                current_row = {
+                    children: [],
+                    width: 0,
+                    height: 0,
+                    y: this.y + total_height
+                };
                 current_x = l_pl;
-                current_y += row_height + style.spacing;
-                row_height = 0;
             }
 
-            // update item position
-            const target_x = this.x + current_x;
-            const target_y = this.y + current_y;
-
-            child.update_pos(target_x, target_y);
-
-            // update position for next item
-            current_x += child_total_width;
-
-            // dont add spacing for ghost elements
-            if (!child.is_ghost) {
-                current_x += style.spacing;
-            }
-
-            row_height = Math.max(row_height, child_total_height);
-            content_height = Math.max(content_height, current_y + child_total_height);
+            // add child to current row
+            current_row.children.push(child);
+            current_row.width += child_width;
+            current_row.height = Math.max(current_row.height, child.h);
+            current_x += child_width;
         }
 
-        this.content_height = content_height + l_pb;
+        // add last row if it has children
+        if (current_row.children.length > 0) {
+            this.rows.push(current_row);
+            total_height += current_row.height;
+        }
+
+        // calculate vertical justify offset for all rows
+        const available_content_height = this.h - l_pt - l_pb;
+        let vertical_offset = 0;
+        
+        if (v_justify == "center") {
+            vertical_offset = Math.max(0, (available_content_height - (total_height - l_pt)) / 2);
+        } else if (v_justify == "bottom") {
+            vertical_offset = Math.max(0, available_content_height - (total_height - l_pt));
+        }
+
+        // second pass: update position based on justify mode
+        for (const row of this.rows) {
+            let start_x = this.x + l_pl;
+            
+            if (h_justify == "center") {
+                start_x += (inner_width - row.width) / 2;
+            } else if (h_justify == "right") {
+                start_x += inner_width - row.width;
+            }
+
+            let current_x = start_x;
+            
+            for (const child of row.children) {
+                const child_style = child.get_style();
+                const child_v_justify = child_style.vertical_justify;
+
+                let child_y = row.y + vertical_offset;
+
+                if (child_v_justify == "center") {
+                    child_y += Math.max(0, (row.height - child.h) / 2);
+                } else if (child_v_justify == "bottom") {
+                    child_y += Math.max(0, row.height - child.h);
+                }
+
+                child.update_pos(current_x, child_y);
+                current_x += child.w + (child.is_ghost ? 0 : spacing);
+            }
+        }
+
+        this.content_height = total_height + l_pb;
         this.is_dirty = false;
 
         // check if we need to resize height
         if (this.auto_resize_height) {
             const required_h = this.content_height;
             if (required_h > this.h) {
-                const new_h = Math.min(required_h, max_expandable_height);
+                const new_h = Math.min(required_h, available_size.height);
                 this.h = Math.max(this.min_height, new_h);
             }
         }

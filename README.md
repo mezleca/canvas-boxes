@@ -5,6 +5,28 @@ very basic canvas ui thing
   <img src="https://github.com/mezleca/canvas-ui/blob/main/static/showcase.png">
 </p>
 
+# TODO
+- [x] default layout
+- [x] free layout
+- [x] node
+- [x] node scrollbar
+- [x] nodestyle
+- [x] mouseup / mousedown event
+- [x] mouseover / mouseleave event
+- [x] mouse click event
+- [x] context event
+- [x] padding
+- [x] horizontal_justify
+- [x] vertical_justify
+- [ ] "to" interpolation func
+- [x] box item
+- [x] spacer item
+- [x] text item
+- [x] align text
+- [x] button item
+- [x] image item
+- [ ] checkbox item
+
 ## usage
 ```js
 // create canvas ui and layout (container)
@@ -31,6 +53,7 @@ const button = new ButtonWidget("add cat").style
     .border_color("rgb(120, 120, 120)", "hover")
     .background_color("rgb(50, 50, 50)") // default bg color
     .background_color("rgb(120, 120, 120)", "hover") // hover bg color
+    .vertical_justify("center")
     .done() // go back to widget
     .on_click(() => { // add cat on click
         const new_cat = create_cat(() => {
@@ -40,9 +63,6 @@ const button = new ButtonWidget("add cat").style
     })
 
 layout.add(button);
-
-// add to root
-ui.add(layout);
 
 // add to root
 ui.add(layout);
