@@ -28,4 +28,4 @@ small ui framework built on top of canvas
 - [ ] checkbox item (default, radio)
 
 ## usage
-check [showcase section](https://github.com/mezleca/canvas-ui/showcase) for usage examples
+check [showcase section](https://github.com/mezleca/canvas-ui/tree/main/showcase) for usage examples
