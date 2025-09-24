@@ -1,6 +1,6 @@
-import { Node } from "../canvas/canvas.js";
-import { get_text_metrics, render_box, render_text } from "../canvas/renderer.js";
-import { PADDING_POSITIONS } from "../canvas/style.js";
+import { Node } from "../index.js";
+import { PADDING_POSITIONS } from "../style.js";
+import { BaseRenderer } from "../renderer/renderer.js";
 
 export class ButtonWidget extends Node {
     constructor(text, w, h) {
@@ -22,9 +22,10 @@ export class ButtonWidget extends Node {
         this.style.background_color({ r: 60, g: 60, b: 60, a: 255 }, "hover");
     }
 
-    calculate(ctx) {
+    /** @param {BaseRenderer} renderer */
+    calculate(renderer) {
         const style = this.get_style();
-        const text_metrics = get_text_metrics(ctx, this.text, style.text_align, style.text_baseline, `${style.font_size}px ${style.font}`);
+        const text_metrics = renderer.measure_text(this.text, style);
 
         const desired_text_w = text_metrics.width * 2;
         const desired_text_h = text_metrics.height * 2;
@@ -34,32 +35,26 @@ export class ButtonWidget extends Node {
 
         this.w = pads_w + desired_text_w;
         this.h = pads_h + desired_text_h;
-
-        this.is_dirty = false;
     }
 
-    render(ctx) {
+    /** @param {BaseRenderer} renderer */
+    render(renderer) {
         if (!this.visible) return;
 
         const style = this.get_style();
-
-        ctx.save();
+        const box_id = `${this.id}_button_box_widget`;
+        const text_id = `${this.id}_button_text_widget`;
 
         // render button box
-        render_box(ctx, this.x, this.y, this.w, this.h, style.border_color, style.background_color, style.border_size, style.border_radius);
+        renderer.render_box(box_id, this.x, this.y, this.w, this.h, style);
 
         // render centered text
-        render_text(
-            ctx,
+        renderer.render_text(
+            text_id,
             this.x + this.w / 2,
             this.y + this.h / 2,
             this.text,
-            `${style.font_size}px ${style.font}`,
-            style.font_color,
-            style.text_align,
-            style.text_baseline,
+            style
         );
-
-        ctx.restore();
     }
 };

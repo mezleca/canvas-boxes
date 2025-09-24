@@ -1,50 +1,43 @@
-import { Node } from "../canvas/canvas.js";
-import { get_text_metrics, render_box, render_text } from "../canvas/renderer.js";
+import { Node } from "../index.js";
+import { BaseRenderer } from "../renderer/renderer.js";
 
 export class TextWidget extends Node {
-    constructor(text = "") {
+    constructor(text) {
         super();
-        if (text != "") this.text = text;
+        if (text != "") this.set_text(text);
         
         // set default text style
-        this.style.set_font("Arial", 20, "white");
+        this.style.font("Arial", 20, { r: 255, g: 225, b: 255 });
     }
 
-    calculate(ctx) {
-        ctx.save();
+    /** @param {BaseRenderer} renderer */
+    calculate(renderer) {
         const style = this.get_style();
-        const metrics = get_text_metrics(ctx, this.text, style.text_align, style.text_baseline, `${style.font_size}px ${style.font}`);
+        const metrics = renderer.measure_text(this.text, style);
         this.w = metrics.width;
         this.h = metrics.height;
-        ctx.restore();
-
-        this.is_dirty = false;
     }
 
-    render(ctx) {
+    /** @param {BaseRenderer} renderer */
+    render(renderer) {
         if (!this.visible || this.text == "") return;
 
         const style = this.get_style();
-
-        ctx.save();
+        const text_id = `${this.id}_text`;
+        const outline_id = `${this.id}_outline`;
 
         // render text
-        render_text(
-            ctx, 
+        renderer.render_text(
+            text_id, 
             this.x, 
             this.y + this.h, 
             this.text,
-            `${style.font_size}px ${style.font}`,
-            style.font_color, 
-            style.text_align, 
-            style.text_baseline
+            style
         );
 
         // render border
-        if (style.border_size && style.border_color != "") {
-            render_box(ctx, this.x, this.y, this.w, this.h, style.border_color, null, style.border_color, style.border_radius);
+        if (style.border_size) {
+            renderer.render_box(outline_id, this.x, this.y, this.w, this.h, { border_size: style.border_size, border_color: style.border_color });
         }
-
-        ctx.restore();
     }
 };

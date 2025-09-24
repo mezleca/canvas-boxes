@@ -1,5 +1,6 @@
-import { Node } from "../canvas/canvas.js";
-import { PADDING_POSITIONS } from "../canvas/style.js";
+import { Node } from "../index.js";
+import { PADDING_POSITIONS } from "../style.js";
+import { BaseRenderer } from "../renderer/renderer.js";
 
 // spacer: fill rows, make custom spaces between items, etc...  
 export class Spacer extends Node {
@@ -22,7 +23,8 @@ export class Spacer extends Node {
         return false;
     }
 
-    calculate(ctx) {
+    /** @param {BaseRenderer} renderer */
+    calculate(renderer) {
         const data = this._parse_ammount();
 
         if (!data) {
@@ -36,19 +38,15 @@ export class Spacer extends Node {
         switch (data.type) {
             case "number": {
                 this.w = data.value;
-                console.log("number", this.w);
                 break;
             }
             case "percentage": {
                 const bounds = this.get_parent_bounds(); 
                 const cw = bounds.w - l_pl - l_pr;
                 this.w = cw / 100 * data.value;
-                console.log("percentage", cw / 100 * data.value);
                 break;
             }
         }
-
-        this.is_dirty = false;
     }
 
     render(ctx) { }

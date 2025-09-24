@@ -1,6 +1,5 @@
-import { Node } from "../canvas/canvas.js";
-import { PADDING_POSITIONS } from "../canvas/style.js";
-import { render_box } from "../canvas/renderer.js";
+import { Node } from "../index.js";
+import { BaseRenderer } from "../renderer/renderer.js";
 
 // base: here you will find all of the functions related to (draw bg, add child, update recursive items, etc...) but no calculation is done here
 export class BaseLayout extends Node {
@@ -23,47 +22,63 @@ export class BaseLayout extends Node {
         this.is_dirty = true;
     }
 
-    draw(ctx) {
+    /** @param {BaseRenderer} renderer */
+    draw(renderer) {
         const style = this.get_style();
-        render_box(ctx, this.x, this.y, this.w, this.h, style.border_color, style.background_color, style.border_size, style.border_radius, true);
+        const id = `${this.id}_background`;
+        renderer.render_box(id, 
+            this.x, 
+            this.y, 
+            this.w, 
+            this.h, 
+            style
+        );
     }
 
-    calculate(ctx) { 
-        this.is_dirty = false;
-    }
+    calculate() { }
 
     get_available_width() {
         const parent_bounds = this.get_parent_bounds();
         return { width: parent_bounds.w - this.x, height: parent_bounds.h - this.y };
     }
 
-    render(ctx, dt) {
+    /** @param {BaseRenderer} renderer */
+    render(renderer, dt) {
         if (!this.visible) {
             return;
         }
 
-        // render background / border
-        ctx.save();
-        this.draw(ctx);
-        ctx.clip();
+        const style = this.get_style();
+        const content_bounds = this.get_content_bounds();
 
-        this.calculate(ctx);
+        // render background / border
+        this.draw(renderer);
+
+        // set clipping to content area (inside border and padding)
+        renderer.set_clip(
+            content_bounds.x,
+            content_bounds.y,
+            content_bounds.w,
+            content_bounds.h
+        );
+
+        this.calculate(renderer);
 
         for (const child of this.children) {
             const original_y = child.y;
             child.y -= this.scroll_top;
             if (child.visible) {
-                child.render(ctx, dt);
+                child.render(renderer, dt);
             }
             child.y = original_y;
         }
 
+        renderer.restore_clip();
+
         // render scrollbar if needed
         if (this.max_scroll > 0) {
-            this.render_scrollbar(ctx);
+            this.render_scrollbar(renderer);
         }
-
-        ctx.restore();
     }
 };
 
@@ -97,42 +112,40 @@ export class DefaultLayout extends BaseLayout {
         }
 
         const style = this.get_style();
-
-        // layout padding
-        const l_pr = style.padding[PADDING_POSITIONS.RIGHT] || 0;
-        const l_pl = style.padding[PADDING_POSITIONS.LEFT] || 0;
-        const l_pt = style.padding[PADDING_POSITIONS.TOP] || 0;
-        const l_pb = style.padding[PADDING_POSITIONS.BOTTOM] || 0;
+        const content_bounds = this.get_content_bounds();
         
         const h_justify = style.horizontal_justify;
         const v_justify = style.vertical_justify;
-        const spacing = style.spacing;
+        const spacing = style.spacing || 0;
 
         const available_size = this.get_available_width();
-        const inner_width = this.w - l_pl - l_pr;
+        const inner_width = content_bounds.w;
         
         // clear previous row data
         this.rows = [];
-        
+
+        let current_x = 0;
+        let total_height = 0;
+
         let current_row = {
             children: [],
             width: 0,
             height: 0,
-            y: this.y + l_pt
+            y: content_bounds.y + total_height
         };
-
-        let current_x = l_pl;
-        let total_height = l_pt;
 
         // first pass: organize children into rows
         for (const child of this.children) {
-            // calculate position if needed
-            if (child.is_dirty && child.calculate) child.calculate(ctx);
+            // calculate child size if needed
+            if (child.is_dirty && child.calculate) {
+                child.calculate(ctx);
+            }
 
             const child_width = child.w + (child.is_ghost ? 0 : spacing);
             const needs_new_row = current_x + child_width > inner_width && current_row.children.length > 0;
 
             if (needs_new_row) {
+                // finish current row
                 this.rows.push(current_row);
                 total_height += current_row.height + spacing;
 
@@ -141,9 +154,10 @@ export class DefaultLayout extends BaseLayout {
                     children: [],
                     width: 0,
                     height: 0,
-                    y: this.y + total_height
+                    y: content_bounds.y + total_height
                 };
-                current_x = l_pl;
+
+                current_x = 0;
             }
 
             // add child to current row
@@ -160,66 +174,81 @@ export class DefaultLayout extends BaseLayout {
         }
 
         // calculate vertical justify offset for all rows
-        const available_content_height = this.h - l_pt - l_pb;
         let vertical_offset = 0;
         
         if (v_justify == "center") {
-            vertical_offset = Math.max(0, (available_content_height - (total_height - l_pt)) / 2);
+            vertical_offset = Math.max(0, (content_bounds.h - total_height) / 2);
         } else if (v_justify == "bottom") {
-            vertical_offset = Math.max(0, available_content_height - (total_height - l_pt));
+            vertical_offset = Math.max(0, content_bounds.h - total_height);
         }
 
-        // second pass: update position based on justify mode
+        // second pass: position children based on justify mode
         for (const row of this.rows) {
-            let start_x = this.x + l_pl;
+            let start_x = content_bounds.x;
+            
+            const row_width_without_trailing_spacing = row.width - 
+                (row.children.length > 0 && !row.children[row.children.length - 1].is_ghost ? spacing : 0);
             
             if (h_justify == "center") {
-                start_x += (inner_width - row.width) / 2;
+                start_x += (inner_width - row_width_without_trailing_spacing) / 2;
             } else if (h_justify == "right") {
-                start_x += inner_width - row.width;
+                start_x += inner_width - row_width_without_trailing_spacing;
             }
 
             let current_x = start_x;
             
-            for (const child of row.children) {
+            for (let i = 0; i < row.children.length; i++) {
+                const child = row.children[i];
                 const child_style = child.get_style();
-                const child_v_justify = child_style.vertical_justify;
+                const child_v_justify = child_style.vertical_justify || "top";
 
                 let child_y = row.y + vertical_offset;
 
+                // vertical alignment within row
                 if (child_v_justify == "center") {
                     child_y += Math.max(0, (row.height - child.h) / 2);
                 } else if (child_v_justify == "bottom") {
                     child_y += Math.max(0, row.height - child.h);
                 }
 
+                // position the child
                 child.update_pos(current_x, child_y);
+                
+                // advance x position
                 current_x += child.w + (child.is_ghost ? 0 : spacing);
             }
         }
 
-        this.content_height = total_height + l_pb;
-        this.is_dirty = false;
+        // calculate total content height (includes padding in the bounds calculation)
+        this.content_height = total_height + content_bounds.padding.top + content_bounds.padding.bottom;
 
         // check if we need to resize height
         if (this.auto_resize_height) {
-            const required_h = this.content_height;
+            const required_h = this.content_height + (content_bounds.border * 2);
             if (required_h > this.h) {
                 const new_h = Math.min(required_h, available_size.height);
                 this.h = Math.max(this.min_height, new_h);
             }
         }
 
-        this.max_scroll = Math.max(0, this.content_height - this.h);
+        this.max_scroll = Math.max(0, this.content_height - content_bounds.h);
 
         // update visibility
         this.update_visibility();
     }
 
     update_visibility() {
+        const content_bounds = this.get_content_bounds();
+        const view_top = content_bounds.y + this.scroll_top;
+        const view_bottom = view_top + content_bounds.h;
+
         for (const child of this.children) {
-            const display_y = child.y - this.scroll_top;
-            const is_visible = display_y + child.h >= this.y && display_y <= this.y + this.h;
+            const child_top = child.y;
+            const child_bottom = child.y + child.h;
+            
+            const buffer = 50;
+            const is_visible = (child_bottom + buffer) >= view_top && (child_top - buffer) <= view_bottom;
+            
             child.set_visible(is_visible);
         }
     }
@@ -232,26 +261,34 @@ export class FreeLayout extends BaseLayout {
     }
 
     calculate(ctx) {
-        let content_bottom = this.y;
+        const content_bounds = this.get_content_bounds();
+        let content_bottom = content_bounds.y;
 
         for (const child of this.children) {
             // calculate position if possible
             if (child.is_dirty && child.calculate) child.calculate(ctx);
-
-            // fallback to layout position
-            if (child.x == 0) child.x = this.x;
-            if (child.y == 0) child.y = this.y;
+            
+            // fallback to content position
+            if (child.x == 0) child.x = content_bounds.x;
+            if (child.y == 0) child.y = content_bounds.y;
 
             const child_bottom = child.y + child.h;
             content_bottom = Math.max(content_bottom, child_bottom);
         }
 
-        this.content_height = content_bottom - this.y;
+        // content height relative to the content area
+        this.content_height = content_bottom - content_bounds.y + content_bounds.padding.top + content_bounds.padding.bottom;
         this.is_dirty = false;
 
         // update visibility
-        const view_top = this.y + this.scroll_top;
-        const view_bottom = this.y + this.h + this.scroll_top;
+        this.update_visibility();
+        this.max_scroll = Math.max(0, this.content_height - content_bounds.h);
+    }
+
+    update_visibility() {
+        const content_bounds = this.get_content_bounds();
+        const view_top = content_bounds.y + this.scroll_top;
+        const view_bottom = view_top + content_bounds.h;
 
         for (const child of this.children) {
             const child_top = child.y;
@@ -260,7 +297,5 @@ export class FreeLayout extends BaseLayout {
             const is_visible = child_bottom >= view_top && child_top <= view_bottom;
             child.set_visible(is_visible);
         }
-
-        this.max_scroll = Math.max(0, this.content_height - this.h);
     }
 };

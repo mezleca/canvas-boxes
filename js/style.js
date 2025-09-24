@@ -21,7 +21,7 @@ export class StyleState {
         this.horizontal_justify = "left";
         this.vertical_justify = "top";
 
-        this.border_size = 1;
+        this.border_size = 0;
         this.border_radius = 0;
         this.border_color = { r: 120, g: 120, b: 120, a: 120 };
         this.background_color = DEFAULT_COLOR_OBJECT;
@@ -29,6 +29,7 @@ export class StyleState {
         // scrollbar
         this.scrollbar_width = 12;
         this.scrollbar_thumb_width = 12;
+        this.scrollbar_thumb_radius = 4;
         this.scrollbar_background_color = { r: 0, g: 0, b: 0, a: 0 };
         this.scrollbar_thumb_color = { r: 160, g: 160, b: 160, a: 120 };
         this.padding = [0, 0, 0, 0]; // top, right, bottom, left
@@ -124,6 +125,7 @@ export class NodeStyle {
     get border_radius_value() { return this.get_current().border_radius; }
     get background_color_value() { return this.get_current().background_color; }
     get scrollbar_width_value() { return this.get_current().scrollbar_width; }
+    get scrollbar_thumb_radius_value() { return this.get_current().scrollbar_thumb_radius; }
     get scrollbar_thumb_width_value() { return this.get_current().scrollbar_thumb_width; }
     get scrollbar_height_value() { return this.get_current().scrollbar_height; }
     get scrollbar_color_value() { return this.get_current().scrollbar_color; }
@@ -190,7 +192,6 @@ export class NodeStyle {
 
     /** @param {DEFAULT_COLOR_OBJECT} value */
     border_color(value, states = null) {
-        console.log("setting border", value, states);
         this._apply_to_states({ border_color: { ...DEFAULT_COLOR_OBJECT, ...value } }, states);
         return this;
     }
@@ -218,6 +219,11 @@ export class NodeStyle {
 
     scrollbar_thumb_width(value, states = null) {
         this._apply_to_states({ scrollbar_thumb_width: value }, states);
+        return this;
+    }
+
+    scrollbar_thumb_radius(value, states = null) {
+        this._apply_to_states({ scrollbar_thumb_radius: value }, states);
         return this;
     }
 
