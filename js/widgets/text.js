@@ -20,7 +20,9 @@ export class TextWidget extends Node {
 
     /** @param {BaseRenderer} renderer */
     render(renderer) {
-        if (!this.visible || this.text == "") return;
+        if (!this.visible || this.text == "") {
+            return;
+        }
 
         const style = this.get_style();
         const text_id = `${this.id}_text`;
@@ -36,8 +38,8 @@ export class TextWidget extends Node {
         );
 
         // render border
-        if (style.border_size) {
-            renderer.render_box(outline_id, this.x, this.y, this.w, this.h, { border_size: style.border_size, border_color: style.border_color });
+        if (style.border_size.value) {
+            renderer.render_box(outline_id, this.x, this.y, this.w, this.h, { border_size: style.border_size, border_color: style.border_color, border_radius: style.border_radius });
         }
     }
 };

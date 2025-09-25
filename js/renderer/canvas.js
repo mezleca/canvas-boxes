@@ -1,3 +1,4 @@
+import { NodeStyle, StyleState } from "../style.js";
 import { BaseRenderer } from "./renderer.js";
 
 export class CanvasRenderer extends BaseRenderer {
@@ -21,50 +22,53 @@ export class CanvasRenderer extends BaseRenderer {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
     
+    /** @param {StyleState} style */
     render_box(id, x, y, w, h, style) {
         const ctx = this.ctx;
 
-        if (style.border_radius > 0) {
-            this._draw_rounded_rect(ctx, x, y, w, h, style.border_radius);
+        if (style.border_radius.value > 0) {
+            this._draw_rounded_rect(ctx, x, y, w, h, style.border_radius.value);
         } else {
             ctx.beginPath();
             ctx.rect(x, y, w, h);
         }
         
-        if (style.background_color) {
-            const c = style.background_color;
+        if (style.background_color.value) {
+            const c = style.background_color.value;
             ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${c.a / 255})`;
             ctx.fill();
         }
         
-        if (style.border_color && style.border_size > 0) {
-            const c = style.border_color;
+        if (style.border_color.value && style.border_size.value > 0) {
+            const c = style.border_color.value;
             ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${c.a / 255})`;
-            ctx.lineWidth = style.border_size;
+            ctx.lineWidth = style.border_size.value;
             ctx.stroke();
         }
     }
     
+    /** @param {StyleState} style */
     render_text(id, x, y, text, style) {
         const ctx = this.ctx;
         
-        if (style.font) ctx.font = `${style.font_size}px ${style.font}`;
-        if (style.text_align) ctx.textAlign = style.text_align;
-        if (style.text_baseline) ctx.textBaseline = style.text_baseline;
+        if (style?.font.value) ctx.font = `${style.font_size.value}px ${style.font.value}`;
+        if (style?.text_align.value) ctx.textAlign = style.text_align.value;
+        if (style?.text_baseline.value) ctx.textBaseline = style.text_baseline.value;
         
-        if (style.font_color) {
-            const c = style.font_color;
+        if (style?.font_color) {
+            const c = style?.font_color.value;
             ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${c.a / 255})`;
             ctx.fillText(text, x, y);
         }
     }
 
+    /** @param {StyleState} style */
     measure_text(text, style) {
         const ctx = this.ctx;
         
-        if (style.font) ctx.font = `${style.font_size}px ${style.font}`;
-        if (style.text_align) ctx.textAlign = style.text_align;
-        if (style.text_baseline) ctx.textBaseline = style.text_baseline;
+        if (style?.font.value) ctx.font = `${style.font_size.value}px ${style.font.value}`;
+        if (style?.text_align.value) ctx.textAlign = style.text_align.value;
+        if (style?.text_baseline.value) ctx.textBaseline = style.text_baseline.value;
         
         const metrics = ctx.measureText(text);
         
@@ -74,13 +78,20 @@ export class CanvasRenderer extends BaseRenderer {
         };
     }
     
+    /** @param {StyleState} style */
     render_image(id, x, y, w, h, image, style) {
         const ctx = this.ctx;
+        ctx.save();
         ctx.translate(x + w / 2, y + h / 2);
+
+        if (style.rotate.value > 0) {
+            const deg = style.rotate.value * Math.PI / 180;
+            ctx.rotate(deg);
+        }
         
-        if (style.border_radius > 0) {
+        if (style?.border_radius.value > 0) {
             ctx.save();
-            this._draw_rounded_rect(ctx, x, y, w, h, style.border_radius);
+            this._draw_rounded_rect(ctx, x, y, w, h, style.border_radius.value);
             ctx.clip();
         }
         
@@ -113,10 +124,6 @@ export class CanvasRenderer extends BaseRenderer {
 
     scale(x, y = x) {
         this.ctx.scale(x, y);
-    }
-
-    rotate(angle) {
-        this.ctx.rotate(angle);
     }
     
     _draw_rounded_rect(ctx, x, y, w, h, radius) {

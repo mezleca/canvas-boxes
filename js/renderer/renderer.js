@@ -19,7 +19,6 @@ export class BaseRenderer {
     pop_transform() { }
     translate(x, y) { }
     scale(x, y) { }
-    rotate(angle) { }
     
     should_render(node) {
         const cached = this.cached_elements.get(node.id);

@@ -114,9 +114,9 @@ export class DefaultLayout extends BaseLayout {
         const style = this.get_style();
         const content_bounds = this.get_content_bounds();
         
-        const h_justify = style.horizontal_justify;
-        const v_justify = style.vertical_justify;
-        const spacing = style.spacing || 0;
+        const h_justify = style.horizontal_justify.value;
+        const v_justify = style.vertical_justify.value;
+        const spacing = style.spacing.value || 0;
 
         const available_size = this.get_available_width();
         const inner_width = content_bounds.w;
@@ -200,7 +200,7 @@ export class DefaultLayout extends BaseLayout {
             for (let i = 0; i < row.children.length; i++) {
                 const child = row.children[i];
                 const child_style = child.get_style();
-                const child_v_justify = child_style.vertical_justify || "top";
+                const child_v_justify = child_style.vertical_justify.value || "top";
 
                 let child_y = row.y + vertical_offset;
 

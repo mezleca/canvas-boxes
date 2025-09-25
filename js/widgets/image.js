@@ -30,13 +30,6 @@ export class ImageWidget extends Node {
         const style = this.get_style();
         const id = `${this.id}_image`;
 
-        renderer.push_transform();
-
-        if (style.rotate) {
-            renderer.rotate(style.rotate);
-        }
-
         renderer.render_image(id, this.x, this.y, this.w, this.h, this.image, style);
-        renderer.pop_transform();
     }
 };

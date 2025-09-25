@@ -32,8 +32,8 @@ export class Spacer extends Node {
         }
 
         const parent_style = this.parent?.get_style();
-        const l_pl = parent_style ? parent_style.padding[PADDING_POSITIONS.LEFT] : 0;
-        const l_pr = parent_style ? parent_style.padding[PADDING_POSITIONS.RIGHT] : 0;
+        const l_pl = parent_style ? parent_style.padding.value[PADDING_POSITIONS.LEFT] : 0;
+        const l_pr = parent_style ? parent_style.padding.value[PADDING_POSITIONS.RIGHT] : 0;
 
         switch (data.type) {
             case "number": {

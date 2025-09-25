@@ -38,7 +38,16 @@ const setup = () => {
             .done() // go back to widget
             .on_click(() => { // add cat on click
                 const new_cat = create_cat(() => {
-                    layout.remove(new_cat.id);
+                    const style = new_cat.style;
+                    const value = style.rotate_value + 20;
+                    
+                    if (value > 180) {
+                        layout.remove(new_cat.id);
+                        play_explosion();
+                        return;
+                    }
+
+                    style.rotate(value);
                 });
                 layout.add(new_cat);
             });
@@ -51,17 +60,18 @@ const setup = () => {
     ui.add(layout);
 };
 
+const play_explosion = () => {
+    const audio = new Audio("../../static/ex.mp3");
+    audio.volume = 0.01;
+    if (!audio.paused) audio.pause();
+    audio.play();
+};
+
 const create_cat = (cb) => {
     const img = new Image();
     img.src = "../../static/cat.png";
     const new_image = new ImageWidget(img, 100, 100);
-    new_image.on("click", async () => {
-        const audio = new Audio("../../static/ex.mp3");
-        audio.volume = 0.01;
-        if (!audio.paused) audio.pause();
-        audio.play();
-        cb();
-    });
+    new_image.on("click", cb);
     return new_image;
 };
 

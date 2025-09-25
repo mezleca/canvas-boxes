@@ -30,8 +30,8 @@ export class ButtonWidget extends Node {
         const desired_text_w = text_metrics.width * 2;
         const desired_text_h = text_metrics.height * 2;
 
-        const pads_w = style.padding[PADDING_POSITIONS.LEFT] + style.padding[PADDING_POSITIONS.RIGHT];
-        const pads_h = style.padding[PADDING_POSITIONS.TOP] + style.padding[PADDING_POSITIONS.BOTTOM];
+        const pads_w = style.padding.value[PADDING_POSITIONS.LEFT] + style.padding.value[PADDING_POSITIONS.RIGHT];
+        const pads_h = style.padding.value[PADDING_POSITIONS.TOP] + style.padding.value[PADDING_POSITIONS.BOTTOM];
 
         this.w = pads_w + desired_text_w;
         this.h = pads_h + desired_text_h;

@@ -1,7 +1,7 @@
 import { NodeStyle, StyleState } from "./style.js";
 import { PADDING_POSITIONS } from "./style.js";
 import { CanvasRenderer } from "./renderer/canvas.js";
-import { register_ui, unregister_ui } from "./events/dom.js";
+import { register_ui, unregister_ui } from "./dom.js";
 
 export class Node {
     constructor() {
@@ -149,12 +149,12 @@ export class Node {
 
     get_content_bounds() {
         const style = this.get_style();
-        const border = style.border_size || 0;
+        const border = style.border_size.value || 0;
         
-        const padding_top = style.padding[PADDING_POSITIONS.TOP] || 0;
-        const padding_right = style.padding[PADDING_POSITIONS.RIGHT] || 0;
-        const padding_bottom = style.padding[PADDING_POSITIONS.BOTTOM] || 0;
-        const padding_left = style.padding[PADDING_POSITIONS.LEFT] || 0;
+        const padding_top = style.padding.value[PADDING_POSITIONS.TOP] || 0;
+        const padding_right = style.padding.value[PADDING_POSITIONS.RIGHT] || 0;
+        const padding_bottom = style.padding.value[PADDING_POSITIONS.BOTTOM] || 0;
+        const padding_left = style.padding.value[PADDING_POSITIONS.LEFT] || 0;
         
         return {
             x: this.x + border + padding_left,
@@ -248,11 +248,9 @@ export class Node {
             }
 
             // drag
-            const scrollbar_x = this.x + this.w - style.scrollbar_width;
+            const scrollbar_x = this.x + this.w - style.scrollbar_width.value;
             const is_holding = input.keys.has("mouse1");
-
-            // @TODO: naming
-            const should_enable_thumb_move = this._is_hovered(scrollbar_x, this.y, style.scrollbar_width, this.h) &&
+            const should_enable_thumb_move = this._is_hovered(scrollbar_x, this.y, style.scrollbar_width.value, this.h) &&
                 is_holding;
 
             // enable drag mode for scrollbar
@@ -290,7 +288,7 @@ export class Node {
 
     render_scrollbar(renderer) {
         const style = this.get_style();
-        const scrollbar_x = this.x + this.w - style.scrollbar_width;
+        const scrollbar_x = this.x + this.w - style.scrollbar_width.value;
         const scrollbar_id = `${this.id}_scrollbar_bg`;
 
         // render background
@@ -298,9 +296,14 @@ export class Node {
             scrollbar_id,
             scrollbar_x,
             this.y,
-            style.scrollbar_width,
+            style.scrollbar_width.value,
             this.h,
-            { background_color: style.scrollbar_background_color, border_size: style.scrollbar_width, border_radius: style.scrollbar_thumb_radius }
+            { 
+                background_color: style.scrollbar_background_color,
+                border_size: style.scrollbar_width,
+                border_radius: style.scrollbar_thumb_radius,
+                border_color: style.scrollbar_background_color
+            }
         );
 
         // render thumb
@@ -317,9 +320,14 @@ export class Node {
             scrollbar_thumb_id,
             scrollbar_x,
             thumb_y,
-            style.scrollbar_thumb_width,
+            style.scrollbar_thumb_width.value,
             thumb_height,
-            { background_color: style.scrollbar_thumb_color, border_size: style.scrollbar_thumb_width, border_radius: style.scrollbar_thumb_radius }
+            { 
+                background_color: style.scrollbar_thumb_color, 
+                border_size: style.scrollbar_thumb_width, 
+                border_radius: style.scrollbar_thumb_radius,
+                border_color: style.scrollbar_background_color
+            }
         );
     }
 
@@ -342,6 +350,10 @@ export class Node {
                 child.update_recursive();
             }
         }
+    }
+
+    get_current_state() {
+        return this.style.current();
     }
 
     on(event_name, callback) {
