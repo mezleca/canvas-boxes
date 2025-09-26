@@ -129,7 +129,7 @@ export class StyleState {
         // border
         this.border_size = new StyleProperty(0, { min: 0 });
         this.border_radius = new StyleProperty(0, { min: 0 });
-        this.border_color = new ColorProperty({ r: 120, g: 120, b: 120, a: 120 });
+        this.border_color = new ColorProperty({ r: 180, g: 180, b: 180, a: 120 });
         this.background_color = new ColorProperty();
 
         // scrollbar
@@ -149,23 +149,30 @@ export class StyleState {
 
     copy() {
         const new_state = new StyleState();
-        
+
         // clone all properties
-        Object.keys(this).forEach(key => {
+        const keys = Object.keys(this);
+
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             if (this[key] instanceof StyleProperty) {
                 new_state[key] = this[key].clone();
             }
-        });
+        }
         
         return new_state;
     }
 
     reset_all() {
-        Object.values(this).forEach(prop => {
-            if (prop instanceof StyleProperty) {
-                prop.reset();
+        const keys = Object.keys(this);
+
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            if (this[key] instanceof StyleProperty) {
+                this[key].reset();
             }
-        });
+        }
+        
         return this;
     }
 };
@@ -185,8 +192,12 @@ export class NodeStyle {
     }
 
     _setup_change_listeners() {
-        Object.values(this.states).forEach(state => {
-            Object.values(state).forEach(prop => {
+        const states_values = Object.values(this.states);
+        for (let i = 0; i < states_values.length; i++) {
+            const state = states_values[i];
+            const state_values = Object.values(state);
+            for (let j = 0; j < state_values.length; j++) {
+                const prop = state_values[j];
                 if (prop instanceof StyleProperty) {
                     const original_on_change = prop._on_change;
                     prop._on_change = (new_value, old_value) => {
@@ -194,8 +205,8 @@ export class NodeStyle {
                         original_on_change(new_value, old_value);
                     };
                 }
-            });
-        });
+            }
+        }
     }
 
     get current() {
@@ -225,14 +236,17 @@ export class NodeStyle {
                 ? states.map((s) => this.states[s]).filter(Boolean)
                 : [this.states[states]].filter(Boolean);
 
-        target_states.forEach((state) => {
-            Object.entries(property_updates).forEach(([key, value]) => {
+        for (let i = 0; i < target_states.length; i++) {
+            const state = target_states[i];
+            const entries = Object.entries(property_updates);
+            for (let j = 0; j < entries.length; j++) {
+                const [key, value] = entries[j];
                 if (state[key] instanceof StyleProperty) {
-                    if (!value) return;
+                    if (!value) continue;
                     state[key].value = value;
                 }
-            });
-        });
+            }
+        }
 
         this.element.is_dirty = true;
     }
@@ -244,11 +258,12 @@ export class NodeStyle {
                 ? states.map((s) => this.states[s]).filter(Boolean)
                 : [this.states[states]].filter(Boolean);
 
-        target_states.forEach((state) => {
+        for (let i = 0; i < target_states.length; i++) {
+            const state = target_states[i];
             const current_padding = [...state.padding.value];
             current_padding[position] = value;
             state.padding.value = current_padding;
-        });
+        }
     }
 
     get text_align_value() { return this.get_current().text_align.value; }
@@ -327,6 +342,7 @@ export class NodeStyle {
 
     /** @param {COLOR_OBJECT} value */
     border_color(value, states = null) {
+        console.log("trying to update border", value);
         this._apply_to_states({ border_color: value }, states);
         return this;
     }
